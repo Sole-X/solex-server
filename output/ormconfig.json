@@ -1,0 +1,14 @@
+[
+  {
+    "name": "default",
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "password": "test",
+    "database": "nft_market",
+    "schema": "",
+    "synchronize": false,
+    "entities": ["entities/*.js"]
+  }
+]
