@@ -1,0 +1,2161 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "NFT Marketplace API"
+  },
+  "tags": [
+    {
+      "name": "Common",
+      "description": "solex 일반 정보"
+    },
+    {
+      "name": "Nft"
+    },
+    {
+      "name": "Account"
+    },
+    {
+      "name": "Sale"
+    },
+    {
+      "name": "Buy",
+      "description": "구매 게시글 정보"
+    },
+    {
+      "name": "Explorer",
+      "description": "explorer"
+    },
+    {
+      "name": "Sign",
+      "description": "서명"
+    },
+    {
+      "name": "Admin",
+      "description": "관리자"
+    }
+  ],
+  "paths": {
+    "/v1/common/token/whitelist": {
+      "get": {
+        "tags": [
+          "Common"
+        ],
+        "summary": "NFT&TOKEN whitelist",
+        "responses": {
+          "200": {
+            "description": "whitelist"
+          }
+        }
+      }
+    },
+    "/v1/common/sideInfo": {
+      "get": {
+        "tags": [
+          "Common"
+        ],
+        "summary": "좌측 total 정보",
+        "responses": {
+          "200": {
+            "description": "sideInfo"
+          }
+        }
+      }
+    },
+    "/v1/common/nameCheck/{username}": {
+      "get": {
+        "tags": [
+          "Common"
+        ],
+        "summary": "이름 사용 가능 여부",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "sideInfo"
+          }
+        }
+      }
+    },
+    "/v1/common/staking": {
+      "get": {
+        "tags": [
+          "Common"
+        ],
+        "summary": "staking 정보",
+        "responses": {
+          "200": {
+            "description": "stakingInfo"
+          }
+        }
+      }
+    },
+    "/v1/common/report": {
+      "post": {
+        "tags": [
+          "Common"
+        ],
+        "summary": "신고하기",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tokenAddr": {
+                    "type": "string"
+                  },
+                  "tokenId": {
+                    "type": "integer"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "sideInfo"
+          }
+        }
+      }
+    },
+    "/v1/nfts": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "아이템 검색",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "tags to filter by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "description": "ex) AUCTION,SELL",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "description": "ex) ETH,KLAY",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "description": "ex) ETC,ART",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collection",
+            "description": "ex) 0x432...,0xd32...",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "description": "ex) 0x432...,0xd32...",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "price",
+            "description": "0-5,20~",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "검색값",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "connectAddr",
+            "in": "query",
+            "description": "연결된 지갑 주소(찜정보 추가)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "description": "POP(인기),DATE(생성일자),PRICE(가격),EXPIRE(마감시간),PARTICIPANT(참여자) (\"~\" 붙으면 ASC )",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerAddr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "nft info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Nft"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/match": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "아이템 / 컬렉션 / 계정 일치 검색",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "검색값",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "SALE or BUY",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "match result"
+          }
+        }
+      }
+    },
+    "/v1/nfts/recentView/{accountAddr}": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "계정별 최근본 아이템",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connectAddr",
+            "in": "query",
+            "required": false,
+            "description": "연결된 지갑 주소(찜정보 추가)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Nft"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/mostLike": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "like 많은 아이템",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nft": {
+                      "$ref": "#/components/schemas/Nft"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/like/{accountAddr}": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "like 정보",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "tags to filter by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nft": {
+                      "$ref": "#/components/schemas/Nft"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/{tokenAddr}/{tokenId}": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "단일 아이템 상세 정보",
+        "parameters": [
+          {
+            "name": "tokenAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "buyId",
+            "in": "query",
+            "description": "삽니다 페이지에서 진입시 입력",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connectAddr",
+            "in": "query",
+            "required": false,
+            "description": "연결된 지갑 주소(찜정보 추가)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nft": {
+                      "$ref": "#/components/schemas/Nft"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/{tokenAddr}/{tokenId}/history": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "거래내역 & 아이템 가격 변동 데이터",
+        "parameters": [
+          {
+            "name": "tokenAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "price data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prices": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "maxPrice": {
+                      "type": "string"
+                    },
+                    "minPrice": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/recentView/": {
+      "post": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "최근본 아이템",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accountAddr": {
+                    "type": "string"
+                  },
+                  "tradeId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/like": {
+      "post": {
+        "summary": "찜 등록",
+        "tags": [
+          "Nft"
+        ],
+        "requestBody": {
+          "description": "Pet to add to the store",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accountAddr": {
+                    "type": "string"
+                  },
+                  "tradeId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/nfts/unlike": {
+      "post": {
+        "summary": "찜 해제",
+        "tags": [
+          "Nft"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accountAddr": {
+                    "type": "string"
+                  },
+                  "tradeId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "사용자 공개정보",
+        "description": "닉네임",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}/totalBalance": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "보유 token 자산, item 개수",
+        "description": "보유 token 자산, 예치 자산, 예치 아이템",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tokens": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TokenBalance"
+                      }
+                    },
+                    "nftCnt": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}/nfts": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "My Items",
+        "description": "deposit된 nft 목록",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "event",
+            "in": "query",
+            "required": false,
+            "description": "AUCTION,SELL,BUY,BID,NEGO",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "ex) SALE",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connectAddr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "연결된 지갑 주소(찜정보 추가)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "nfts"
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}/activites": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "My activity",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "in": "query",
+            "required": false,
+            "description": "ETH,KLAY",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "event",
+            "in": "query",
+            "required": false,
+            "description": "AUCTION,SELL,BUY,BID,NEGO,NFT,TOKEN",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenAddr",
+            "in": "query",
+            "required": false,
+            "description": "0x432...,0x4fs33... (구분자 : \",\")",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenName",
+            "in": "query",
+            "required": false,
+            "description": "Alako,...",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "txHash",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "description": "ex) 0x432...,0xd32...",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "activities"
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}/staking": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "My staking info",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "tags to filter by",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "activities"
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}/profile": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "사용자 정보 편집",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "display": {
+                    "type": "integer"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "base64"
+                  },
+                  "connectAddr": {
+                    "type": "string"
+                  },
+                  "hashType": {
+                    "type": "string"
+                  },
+                  "msg": {
+                    "type": "string"
+                  },
+                  "signHash": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/account/{accountAddr}/agreement": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "동의 설정",
+        "parameters": [
+          {
+            "name": "accountAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "description": "TRUE | FALSE",
+                    "example": "TRUE"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sale/{tradeId}": {
+      "get": {
+        "tags": [
+          "Sale"
+        ],
+        "summary": "경매 정보",
+        "parameters": [
+          {
+            "name": "tradeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connectAddr",
+            "in": "query",
+            "description": "연결된 지갑 주소(찜정보 추가)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+          }
+        }
+      }
+    },
+    "/v1/sells/{sellId}/declineNego/{negoId}": {
+      "post": {
+        "tags": [
+          "Sale"
+        ],
+        "summary": "거절",
+        "parameters": [
+          {
+            "name": "sellId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "negoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "declineType": {
+                    "type": "string"
+                  },
+                  "declineReason": {
+                    "type": "string"
+                  },
+                  "connectAddr": {
+                    "type": "string"
+                  },
+                  "hashType": {
+                    "type": "string"
+                  },
+                  "msg": {
+                    "type": "string"
+                  },
+                  "signHash": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/buys": {
+      "get": {
+        "tags": [
+          "Buy"
+        ],
+        "summary": "구매 게시글 리스트",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "description": "START,CANCEL,EDIT,DONE",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "buyerAddr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "description": "ex) ETH,KLAY",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collection",
+            "in": "query",
+            "description": "0x3fda..., 0x2dxv...",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "description": "ex) ETC,ART",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "description": "ex) 0x432...,0xd32...",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "price",
+            "description": "0-5,20~",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connectAddr",
+            "in": "query",
+            "description": "연결된 지갑 주소(찜정보 추가)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "검색값",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "sells",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Buy"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/buys/{buyId}": {
+      "get": {
+        "tags": [
+          "Buy"
+        ],
+        "summary": "구매 정보",
+        "parameters": [
+          {
+            "name": "buyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "buy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Buy"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/explorer/activity": {
+      "get": {
+        "tags": [
+          "Explorer"
+        ],
+        "summary": "Activity",
+        "parameters": [
+          {
+            "name": "status",
+            "description": "SELL,BUY,AUCTION,NEGO,BID,NFT,TOKEN",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "description": "ex) ETH,KLAY",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "description": "ART,ETC",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collection",
+            "description": "0x3d8fe...,0x4aw03k...",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Nft"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/explorer/rank": {
+      "get": {
+        "tags": [
+          "Explorer"
+        ],
+        "summary": "NFT 순위",
+        "parameters": [
+          {
+            "name": "target",
+            "description": "TOTAL | WEEK | AVGPRICE | CAHNGE | OWNCNT | NFTCNT",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "description": "ASC,DESC",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "platform",
+            "description": "ex) ETH,KLAY",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "description": "ART,ETC",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collection",
+            "description": "0x3d8fe...,0x4aw03k...",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Nft"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sign/send": {
+      "post": {
+        "summary": "서명 트랜잭션",
+        "tags": [
+          "Sign"
+        ],
+        "requestBody": {
+          "description": "cate = AUCTION, SELL, BUY, TOKEN, NFT (TOKEN,NFT -> reserve contract)",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cate": {
+                    "description": "test",
+                    "type": "string"
+                  },
+                  "msg": {
+                    "type": "string"
+                  },
+                  "signHash": {
+                    "type": "string"
+                  },
+                  "hash": {
+                    "type": "string"
+                  },
+                  "hashType": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/nft/collection": {
+      "post": {
+        "summary": "Nft Collection 정보 설정",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tokenAddr": {
+                    "type": "string",
+                    "description": "klaytn 내의 토큰 주소",
+                    "example": "0x49E508C437AF1F0Cad0b52A31963A2cfF02cc666"
+                  },
+                  "platform": {
+                    "type": "string",
+                    "example": "ETH"
+                  },
+                  "ethAddr": {
+                    "type": "string",
+                    "description": "ETH 플랫폼의 토큰 주소",
+                    "example": "0x49E508C437AF1F0Cad0b52A31963A2cfF02cc666"
+                  },
+                  "explorer": {
+                    "type": "string"
+                  },
+                  "logoUrl": {
+                    "type": "string"
+                  },
+                  "desc": {
+                    "type": "string",
+                    "example": "Axies는 디지털 애완 동물이며 각 Axie는 독특한 모양과 속성을 가지고 있습니다."
+                  },
+                  "link": {
+                    "type": "string",
+                    "example": "https://axieinfinity.com/"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/nft/category": {
+      "post": {
+        "summary": "Nft 카테고리 설정",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "description": "cate = ETH,KLAY,ART,ETC,COLLECTIBLES",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nftAddr": {
+                    "type": "string",
+                    "example": "0x49E508C437AF1F0Cad0b52A31963A2cfF02cc666"
+
+                  },
+                  "cate": {
+                    "type": "string",
+                    "example": "ETH,ETC"
+
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/kasInit": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "kas account 생성",
+        "parameters": [
+          {
+            "name": "chainId",
+            "description": "Klaytn 체인 네트워크 ID Cypress (8217) and Baobab (1001)",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "address"
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Nft": {
+        "type": "object",
+        "description": "아이템 정보",
+        "properties": {
+          "tokenAddr": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "number"
+          },
+          "tokenUri": {
+            "type": "string"
+          },
+          "ownerAddress": {
+            "type": "string"
+          },
+          "tradeId": {
+            "type": "string",
+            "description": "마지막 게시글 ID"
+          },
+          "platform": {
+            "type": "string",
+            "description": "체인 정보 ETH, KLAY"
+          },
+          "currency": {
+            "type": "string",
+            "description": "거래 TOKEN 주소"
+          },
+          "price": {
+            "type": "number",
+            "description": "마지막 거래량"
+          },
+          "usdPrice": {
+            "type": "number",
+            "description": "마지막 거래 가격"
+          },          
+          "status": {
+            "type": "string",
+            "description": "DEPOSIT:1, SELL:2, AUCTION:3, BUY:4, WITHDRAW:7, VAULT:9, SEND:10, MINT:11, BURN:12"
+          },
+          "createdAt": {
+            "type": "date"
+          },
+          "updatedAt": {
+            "type": "date"
+          },
+          "auction": {
+            "$ref": "#/components/schemas/Auction"
+          }
+        }
+      },
+      "NftDesc": {
+        "type": "object",
+        "description": "아이템 상세 정보",
+        "properties": {
+          "tokenAddr": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "number"
+          },
+          "tokenUri": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "TokenBalance": {
+        "type": "object",
+        "properties": {
+          "accountAddress": {
+            "type": "string"
+          },
+          "tokenAddress": {
+            "type": "integer"
+          },
+          "amount": {
+            "type": "integer"
+          },
+          "lockAuctionAmount": {
+            "type": "integer"
+          },
+          "lockSellAmount": {
+            "type": "integer"
+          },
+          "lockBuyAmount": {
+            "type": "integer"
+          },
+          "lockStakeAmount": {
+            "type": "integer"
+          }
+        }
+      },
+      "SellNego": {
+        "type": "object",
+        "description": "판매 정보",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountAddress": {
+            "type": "string",
+            "description": "협상 요청자"
+          },
+          "sellId": {
+            "type": "number",
+            "description": "판매글 ID"
+          },
+          "currency": {
+            "type": "string",
+            "description": "거래 통화"
+          },
+          "negoPrice": {
+            "type": "string",
+            "description": "등록 거래 가격"
+          },
+          "usdPrice": {
+            "type": "string"
+          },
+          "declineType": {
+            "type": "string"
+          },
+          "declineReason": {
+            "type": "string"
+          },                    
+          "status": {
+            "type": "string",
+            "description": "START:2, CANCEL:3, REJECT:5, DONE:7, FAIL:8"
+          }                                       
+        }
+      },
+      "Sale": {
+        "type": "object",
+        "description": "아이템 정보",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tokenAddress": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "number"
+          },
+          "tokenName": {
+            "type": "string",
+            "description": "NFT이름"
+          },
+          "currency": {
+            "type": "string",
+            "description": "거래 통화"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "거래 종료 시간"
+          },
+          "basePrice": {
+            "type": "string",
+            "description": "등록 거래 가격"
+          },
+          "currentPrice": {
+            "type": "string",
+            "description": "종료 거래 가격"
+          },
+          "usdPrice": {
+            "type": "string"
+          },
+          "straightPrice": {
+            "type": "string",
+            "description": "즉시 구매 가격"
+          },          
+          "createTxHash": {
+            "type": "string"
+          },
+          "lastTxHash": {
+            "type": "string"
+          },                    
+          "ownerAddress": {
+            "type": "string"
+          },
+          "buyerAddress": {
+            "type": "string",
+            "description": "최종 구매자 & 최종 입찰자"
+          },
+          "type": {
+            "type": "string",
+            "description": "NORMAL_AUCTION:1,INSTANT_AUCTION:2,DIRECT_SELL:3,NEGOTIABLE_SELL:4,"
+          },
+          "status": {
+            "type": "string",
+            "description": "PENDING:1, START:2, CANCEL:3, DONE:7, FAIL:8"
+          }
+        }
+      },
+      "AuctionBid": {
+        "type": "object",
+        "description": "경매 입찰 정보",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountAddress": {
+            "type": "string",
+            "description": "입찰 요청자"
+          },
+          "auctionId": {
+            "type": "number",
+            "description": "경매글 ID"
+          },
+          "bidIndex": {
+            "type": "string",
+            "description": "입찰 순서"
+          },
+          "bidPrice": {
+            "type": "string",
+            "description": "입찰 가격"
+          },
+          "usdPrice": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "START:2, CANCEL:3, REJECT:5, DONE:7, FAIL:8"
+          }                                       
+        }
+      },      
+      "Buy": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tokenAddress": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "description": "거래 통화"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string",
+            "description": "거래 종료 시간"
+          },
+          "basePrice": {
+            "type": "string",
+            "description": "구매 희망 가격"
+          },
+          "usdPrice": {
+            "type": "string"
+          },
+          "createTxHash": {
+            "type": "string"
+          },
+          "lastTxHash": {
+            "type": "string"
+          },
+          "buyerAddress": {
+            "type": "string"
+          },
+          "sellerAddress": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "START:2, CANCEL:3, DONE:7, FAIL:8"
+          }
+        }
+      },
+      "Activity": {
+        "type": "object",
+        "description": "경매 입찰 정보",
+        "properties": {
+          "eventType": {
+            "type": "string",
+            "description": "AUCTION:1, SELL:2, BUY:3, BID:4, NEGO:5, NFT:6, TOKEN:7"
+          },
+          "status": {
+            "type": "string",
+            "description": "각 type에 맞는 status"
+          },
+          "tradeId": {
+            "type": "string",
+            "description": "거래 ID"
+          },
+          "txHash": {
+            "type": "string",
+            "description": "txHash"
+          },
+          "tokenAddress": {
+            "type": "string",
+            "description": "토큰 OR NFT tokenAddress"
+          },
+          "tokenId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string",
+            "description": "거래 금액"
+          },
+          "usdPrice": {
+            "type": "string",
+            "description": "usd 금액"
+          }
+                                    
+        }
+      },            
+      "Error": {
+        "type": "object",
+        "required": [
+          "msg"
+        ],
+        "properties": {
+          "msg": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
