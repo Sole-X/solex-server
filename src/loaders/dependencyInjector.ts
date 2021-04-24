@@ -37,12 +37,26 @@ export default async () => {
     for(let objKey of Object.keys(contractAddress)){
       if(contractAddress[objKey].indexOf("0x")>-1) contractAddress[objKey] = contractAddress[objKey].toLowerCase();
     }
-    
+        
+    if(process.env.BLOCK_RPC_USING){
+      Container.set('caverClient',new Caver(process.env.BLOCK_RPC || 'http://klaytn.dxm.kr:8551'));
+    }else{
+      const accessKeyId = process.env.KAS_KEY1;
+      const secretAccessKey = process.env.KAS_KEY2;
+      
+      const option = {
+        headers: [
+          {name: 'Authorization', value: 'Basic ' + Buffer.from(accessKeyId + ':' + secretAccessKey).toString('base64')},
+          {name: 'x-chain-id', value: process.env.KAS_NETWORK},
+        ]
+      }
+      Container.set('caverClient',new Caver(new Caver.providers.HttpProvider("https://node-api.klaytnapi.com/v1/klaytn", option)));
+    }
+
     Container.set('currency',currency);
     Container.set('contractAddress',contractAddress);
     Container.set('logger', LoggerInstance);
     Container.set('constant', constant);  
-    Container.set('caverClient',new Caver(process.env.BLOCK_RPC || 'http://klaytn.dxm.kr:8551'));
     Container.set('ethClient',new Web3(process.env.ETH_BLOCK_RPC));
     Container.set("kasCaver",kasCaver);
     Container.set("RedisService",new RedisService(LoggerInstance));
