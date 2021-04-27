@@ -1150,8 +1150,8 @@ export class init1607056740631 implements MigrationInterface {
 
           await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('migrationVersion','1')  `);
           await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('migrationRange',0)  `);
-          await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('currentBlockNo',56894592)  `);
-          await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('currentEthBlockNo',10042047)  `);
+          await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('currentBlockNo',57476589)  `);
+          await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('currentEthBlockNo',12306758)  `);
           await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('totalStaking',0)  `);
           await queryRunner.query(`INSERT INTO variable(\`key\`,\`value\`) VALUES ('totalReward',0)  `);
         }
