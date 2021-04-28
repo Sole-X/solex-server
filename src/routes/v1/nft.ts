@@ -17,6 +17,9 @@ export default (app: Router) => {
   //아이템 검색
   route.get('/match', nftCtrl.matchSearch)
 
+  //아이템 get metadata && db insert 
+  route.get('/metadata', nftCtrl.getMetadata)
+
   //최근본 아이템 목록
   route.get('/recentView', nftCtrl.recentViewList)
 
