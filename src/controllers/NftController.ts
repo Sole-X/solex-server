@@ -188,6 +188,52 @@ exports.getNft = async function (req:Request, res:Response, next:NextFunction) {
   }
 }
 
+
+exports.getMetadata = async function (req:Request, res:Response, next:NextFunction) {
+  const nftService:NftService  = Container.get('NftService');
+  var tokenAddr:any = req.query.tokenAddr;
+  var tokenIds:any = req.query.tokenIds;
+  tokenIds = tokenIds.split(",");
+  var result = {};
+
+  try {
+    var dbNftsObjs = await getRepository(NftItem).find({
+      where:{tokenAddress:tokenAddr,tokenId:In(tokenIds)}
+      ,relations:['desc']});
+
+    const nftInfos = dbNftsObjs.reduce(function(result:any, element) {
+      if(result[element.tokenAddress]){
+        if(result[element.tokenAddress][element.tokenId]){
+          result[element.tokenAddress][element.tokenId] = element;
+        }else{
+          result[element.tokenAddress][element.tokenId] = element;
+        } 
+      }else{
+        result[element.tokenAddress] ={};
+        result[element.tokenAddress][element.tokenId] = element;
+      }
+
+      return result;
+    }, {}); 
+
+    for(let i=0; i<tokenIds.length;i++){
+
+      if(!(nftInfos[tokenAddr][tokenIds[i]]['desc'])){
+        var [name,description,image] = await nftService.getMetadata(tokenAddr,tokenIds[i]);
+        nftInfos[tokenAddr][tokenIds[i]]['desc'] = {
+          name:name,
+          description:description,
+          image:image
+        }
+      }      
+    }
+    
+    return res.status(200).json({ nfts: nftInfos });
+  } catch (e) {
+    return next(e);
+  }
+}
+
 //최신 아이템 목록
 exports.latest = async function (req:Request, res:Response, next:NextFunction) {
   const nftService:NftService  = Container.get('NftService');
