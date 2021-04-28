@@ -11,9 +11,8 @@ import { getRepository } from "typeorm";
 const rp = require('request-promise');
 
 export default async ()=>{
-  const nodeService:NodeService = Container.get("NodeService");
+  const nftService:any = Container.get("NftService");
   const logger:any = Container.get("logger");
-
   while(true){
     try{
       var dataArr = await NftQueue.find({
@@ -22,55 +21,10 @@ export default async ()=>{
       });
       for(let i=0; i<dataArr.length; i++){
         const nftItemDesc = await NftItemDesc.findOne({select:['tokenAddress'],where:{tokenAddress:dataArr[i].tokenAddress,tokenId:dataArr[i].tokenId}})
-        if(!nftItemDesc){
-          var tokenURI = await nodeService.getTokenURI(dataArr[i].tokenAddress,dataArr[i].tokenId);
         
-          if(!tokenURI && (process.env.NODE_ENV == 'local' || process.env.NODE_ENV == 'development')){
-            if(Number(dataArr[i].tokenId)%2==0){
-              tokenURI = "https://nft.service.cometh.io/"+ (Math.floor(Math.random() * 300) + 6000000).toString();
-            }else{
-              tokenURI = "https://joyworld.azurewebsites.net/api/HttpTrigger?id="+ (Math.floor(Math.random() * 300) ).toString();
-            }
-          }
-  
-          var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-          
-          if(tokenURI){
-            if(pattern.test(tokenURI)){
-              var [name,description,image] = await parseUrl(tokenURI);
-            }else{
-              var [name,description,image] = parseStandard(tokenURI);
-            }
-            await NftItemDesc.createQueryBuilder()
-            .insert()
-            .values({
-              tokenAddress: dataArr[i].tokenAddress,
-              tokenUri:tokenURI,
-              tokenId:dataArr[i].tokenId,
-              name:name,
-              description:description,
-              image:image
-            })
-            .orUpdate({ conflict_target: ['tokenAddress','tokenId'], overwrite: ['name','description','image'] })
-            .updateEntity(false)
-            .execute();
-  
-            await getRepository(Buy).update(
-              { tokenAddress: dataArr[i].tokenAddress,tokenId:dataArr[i].tokenId }, 
-              { tokenName: name });
-          }
-  
-          const result = await getRepository(NftItem).update(
-            { tokenAddress: dataArr[i].tokenAddress,tokenId:dataArr[i].tokenId }, 
-            { tokenUri: tokenURI });
-
+        if(!nftItemDesc){
+          await nftService.getMetadata(dataArr[i].tokenAddress,dataArr[i].tokenId);
         }
-
         await getRepository(NftQueue).delete(dataArr[i].id);
       }
   
@@ -81,28 +35,3 @@ export default async ()=>{
     }
   }
 };
-
-async function parseUrl(tokenURI){
-  const requestOptions = {
-    method: 'GET',
-    uri: tokenURI,
-    json: true,
-    gzip: true
-  };
-
-  const data = await rp(requestOptions);
-
-  return [data.name,data.description,data.image];
-}
-
-function parseStandard(tokenURI){
-  var name,description,image;
-  
-  const data = JSON.parse(tokenURI);
-  
-  name = data.name;
-  description = data.description;
-  image = data.image;
-  
-  return [name,description,image];
-}
