@@ -38,7 +38,7 @@ export default async () => {
       if(contractAddress[objKey].indexOf("0x")>-1) contractAddress[objKey] = contractAddress[objKey].toLowerCase();
     }
         
-    if(process.env.BLOCK_RPC_USING){
+    if(process.env.BLOCK_RPC_USING=='true'){
       Container.set('caverClient',new Caver(process.env.BLOCK_RPC || 'http://klaytn.dxm.kr:8551'));
     }else{
       const accessKeyId = process.env.KAS_KEY1;

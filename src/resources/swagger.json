@@ -497,7 +497,6 @@
         ],
         "responses": {
           "200": {
-            "description": "pet response",
             "content": {
               "application/json": {
                 "schema": {
@@ -524,6 +523,49 @@
         }
       }
     },
+    "/v1/nfts/metadata": {
+      "get": {
+        "tags": [
+          "Nft"
+        ],
+        "summary": "아이템 상세 정보",
+        "parameters": [
+          {
+            "name": "tokenAddr",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenIds",
+            "in": "query",
+            "description": ",로 구분된 ids",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nft": {
+                      "$ref": "#/components/schemas/Nft"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },    
     "/v1/nfts/{tokenAddr}/{tokenId}/history": {
       "get": {
         "tags": [
