@@ -38,7 +38,7 @@ exports.getStakingInfo = async function (req, res, next) {
       if(variable[i].key=="totalReward") result['totalReward'] = variable[i].value;
     }
     result['trixPrice'] = tokenInfo.usdPrice;
-    result['totalSupply'] = await nodeService.getTrixTotalSupply();
+    result['totalSupply'] = '9999982296000000000000000000';
 
     return res.status(200).json( result );
   } catch (e) {

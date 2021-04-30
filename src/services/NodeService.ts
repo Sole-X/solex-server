@@ -185,7 +185,7 @@ export class NodeService {
 
   async getTrixTotalSupply(){
     var totalSupply = await this.redisService.get('trixTotalSuply');
-    if(process.env.NODE_ENV!='live') return '10000000000000000000000000000';
+    if(process.env.NODE_ENV!='live') return '9999982296000000000000000000';
     if(totalSupply>0 || false){
       return totalSupply;
     }else{
@@ -196,7 +196,7 @@ export class NodeService {
         this.redisService.set('trixTotalSuply',totalSupply);
         this.redisService.expire("trixTotalSuply",60);
       }else{
-        return '--';
+        return '9999982296000000000000000000';
       }
     }
   }
