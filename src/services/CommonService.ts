@@ -397,8 +397,8 @@ export class CommonService {
 
     datas = await datas.reduce(function(result, data) {
       if(data.accountAddress && data.accountAddress in accounts) data['accountAddressDesc'] = accounts[data.accountAddress];
-      if(data.fromAddress && data.fromAddress in accounts) data['fromAddressDesc'] = accounts[data.accountAddress];
-      if(data.toAddress && data.toAddress in accounts) data['toAddressDesc'] = accounts[data.accountAddress];
+      if(data.fromAddress && data.fromAddress in accounts) data['fromAddressDesc'] = accounts[data.fromAddress];
+      if(data.toAddress && data.toAddress in accounts) data['toAddressDesc'] = accounts[data.toAddress];
       result.push(data)
       return result;
     }, []);
