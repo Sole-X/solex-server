@@ -58,7 +58,8 @@ export class SellService {
     const sellType = ( params.isNegotiable)? this.constant.TYPE.SALE.NEGOTIABLE_SELL:this.constant.TYPE.SALE.DIRECT_SELL
     const nftDesc = await NftItemDesc.findOne({select:['name'],where:{tokenAddress:params.nftAddr,tokenId:params.tokenId}})
     var tokenName = (nftDesc && 'name' in nftDesc)? nftDesc.name:"";
-
+    const usdPrice = await this.commonService.convertUsdPrice(params.wantedToken, params.maxAmount);
+ 
     //판매글 생성
     await this.bulkService.addData(blockNo,{
       tableName:"sale",
@@ -71,6 +72,7 @@ export class SellService {
         startTime:blockDate,
         basePrice: params.maxAmount,
         currentPrice: params.maxAmount,
+        usdPrice: usdPrice,
         createTxHash:txHash,
         ownerAddress: params.offerOwner,
         type:sellType,
