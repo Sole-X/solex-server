@@ -61,7 +61,8 @@ export class AuctionService {
     var type = (params.isInstantTrade)?this.constant.TYPE.SALE.INSTANT_AUCTION:this.constant.TYPE.SALE.NORMAL_AUCTION;
     const nftDesc = await NftItemDesc.findOne({select:['name'],where:{tokenAddress:params.nftAddr,tokenId:params.tokenId}})
     var tokenName = (nftDesc && 'name' in nftDesc)? nftDesc.name:"";
-
+    const usdPrice = await this.commonService.convertUsdPrice(params.biddingToken, params.minAmount);
+ 
     //판매자 경매 활동내역 생성
     await this.bulkService.addData(blockNo,{
       tableName:"activity",
@@ -93,6 +94,7 @@ export class AuctionService {
         startTime:blockDate,
         endTime:endTime,
         basePrice:params.minAmount,
+        usdPrice: usdPrice,
         currentPrice:params.minAmount,
         straightPrice:params.maxAmount,
         createTxHash:txHash,
@@ -122,7 +124,7 @@ export class AuctionService {
     const auction = await Sale.findOne(params.auctionId);
     const usdPrice = await this.commonService.convertUsdPrice(params.tokenAddr, params.tokenAmount);
     const paidAmount = await this.nodeService.getPaidAmount(params.tokenAmount); //구매자 지불금액
-
+ 
     //판매자 경매 활동내역 종료
     await this.bulkService.addData(blockNo,{
       tableName:"activity",
