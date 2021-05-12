@@ -246,13 +246,13 @@ export class CommonService {
           order = {liked:sort};
         break;
         case "DATE":
-          order = {updatedAt:sort};
+          order = {updatedAt:sort}; 
         break;
         case "PRICE":
-          order = {basePrice:sort};
+          order = {usdPrice:sort};
         break;
         case "EXPIRE":
-          order = {endTime:sort};
+          order = {status:"ASC",endTime:sort};
         break;
         case "PARTICIPANT":
           order = {participant:sort};
