@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { Activity } from "../entities/Activity";
 import { NftRank } from "../entities/NftRank";
+import { Not } from "typeorm";
 
 //아이템 검색
 exports.getActivity = async function (req:Request, res:Response, next:NextFunction) {
@@ -27,6 +28,10 @@ exports.getActivity = async function (req:Request, res:Response, next:NextFuncti
       collection:collection,
       platformByInfo:platform
     });
+
+    if (!("eventType" in where) || !where["eventType"]) {
+      where["eventType"] = Not(constant.TYPE.EVENT.TOKEN);
+    }
 
     var data = await Activity.pagination(req.query.page , 20, where,order,['nftDesc']);
     data.items = await commonService.convertStatusStr(data.items,'EVENT','TYPE','eventType');
