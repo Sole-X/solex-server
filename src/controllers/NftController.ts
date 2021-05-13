@@ -52,7 +52,8 @@ exports.saleSearch = async function (req:Request, res:Response, next:NextFunctio
     if(!status || status.indexOf("AUCTION") > -1) statusArr.push(constant.TYPE.SALE.NORMAL_AUCTION,constant.TYPE.SALE.INSTANT_AUCTION);
     if(statusArr.length > 0) where['type'] = In(statusArr);
 
-    where['status'] = In([constant.STATUS.SALE.START,constant.STATUS.SALE.DONE]);
+    //where['status'] = In([constant.STATUS.SALE.START,constant.STATUS.SALE.DONE]);
+    where['status'] = In([constant.STATUS.SALE.START]);
     if(buyerAddr) where['buyerAddress'] = buyerAddr;
     if(ownerAddr) where['ownerAddress'] = ownerAddr;
     
