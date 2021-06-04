@@ -14,8 +14,11 @@ exports.search = async function (req, res, next) {
   var currency = req.query.currency;
   var price = req.query.price;
   var search = req.query.search;
-  const platform:any = req.query.platform;
+  var publisher = req.query.publisher;
+  const lifeStatus = req.query.lifeStatus || '';
 
+  const platform:any = req.query.platform;
+  
   try {
 
     var where = await commonService.makeWhereFromReq({
@@ -25,9 +28,17 @@ exports.search = async function (req, res, next) {
       price:price,
       priceName:"basePrice",
       search:search,
-      platformByInfo:platform
+      platformByInfo:platform,
+      publisher:publisher
     });
-    where['status']=In([constant.STATUS.BUY.START,constant.STATUS.BUY.DONE]);
+
+    if(lifeStatus == "START"){
+      where['status'] = constant.STATUS.BUY.START;
+    }else if(lifeStatus == "DONE"){
+      where['status'] = constant.STATUS.BUY.DONE;
+    }else{
+      where['status']=In([constant.STATUS.BUY.START,constant.STATUS.BUY.DONE]);
+    }
 
     if(buyerAddr) where['buyerAddress']=buyerAddr;
 

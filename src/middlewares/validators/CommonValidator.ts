@@ -21,3 +21,11 @@ exports.nameValidationRules = () => {
     .not().withMessage("parameter is invalid(CODE:043)")
   ]
 }
+
+exports.emailValidationRules = () => {
+
+  return [
+    body('email').isEmail().withMessage("parameter is invalid(CODE:052)")
+    .not().withMessage("parameter is invalid(CODE:053)")
+  ]
+}

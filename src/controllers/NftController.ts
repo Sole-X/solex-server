@@ -4,6 +4,7 @@ import { Container } from "typedi";
 
 import { NftItem } from "../entities/NftItem";
 import { NftItemDesc } from "../entities/NftItemDesc";
+import { NftRank } from "../entities/NftRank";
 import { NftLiked } from "../entities/NftLiked";
 import { NftInfo } from "../entities/NftInfo";
 import { Activity } from "../entities/Activity";
@@ -33,6 +34,8 @@ exports.saleSearch = async function (req:Request, res:Response, next:NextFunctio
   const buyerAddr = req.query.buyerAddr;
   const ownerAddr = req.query.ownerAddr;
   const connectAddr = req.query.connectAddr;
+  const publisher = req.query.publisher;
+  const lifeStatus = req.query.lifeStatus || '';
 
   var order:any = req.query.order || "DATE";
 
@@ -44,7 +47,8 @@ exports.saleSearch = async function (req:Request, res:Response, next:NextFunctio
       price:price,
       priceName:"currentPrice",
       search:search,
-      platformByInfo:platform
+      platformByInfo:platform,
+      publisher:publisher
     });
 
     var statusArr = [];
@@ -52,7 +56,14 @@ exports.saleSearch = async function (req:Request, res:Response, next:NextFunctio
     if(!status || status.indexOf("AUCTION") > -1) statusArr.push(constant.TYPE.SALE.NORMAL_AUCTION,constant.TYPE.SALE.INSTANT_AUCTION);
     if(statusArr.length > 0) where['type'] = In(statusArr);
 
-    where['status'] = In([constant.STATUS.SALE.START,constant.STATUS.SALE.DONE]);
+    if(lifeStatus == "START"){
+      where['status'] = constant.STATUS.SALE.START;
+    }else if(lifeStatus == "DONE"){
+      where['status'] = constant.STATUS.SALE.DONE;
+    }else{
+      where['status'] = In([constant.STATUS.SALE.START,constant.STATUS.SALE.DONE]);
+    }
+    
     if(buyerAddr) where['buyerAddress'] = buyerAddr;
     if(ownerAddr) where['ownerAddress'] = ownerAddr;
     
@@ -81,8 +92,12 @@ exports.matchSearch = async function (req:Request, res:Response, next:NextFuncti
   var result={};
   var nftItems;
   var accounts;
+
   try {
     if(search == '') throw Error("SEARCH EMPTY");
+
+    var tokenAddrArr = [];
+    var tokenIdArr = [];
 
     if(type=="SALE"){
       nftItems = await Sale.find({
@@ -106,6 +121,16 @@ exports.matchSearch = async function (req:Request, res:Response, next:NextFuncti
 
     }
 
+    const pubs = await getRepository(NftItem)
+    .createQueryBuilder()
+    .select('publisher')
+    .where({ publisher: Like("%" + search + "%") })
+    .distinct(true)
+    .execute()
+
+    tokenAddrArr = tokenAddrArr.concat(nftItems.map(item => item.tokenAddress))
+    tokenIdArr = tokenIdArr.concat(nftItems.map(item => item.tokenId))
+
     accounts = await Account.find({
       select:['accountAddress','username'],
       where:[
@@ -114,14 +139,41 @@ exports.matchSearch = async function (req:Request, res:Response, next:NextFuncti
       ],
       take:limit
     });
-    
     const nftInfos = await NftInfo.find({where:{name:Like("%"+search+"%")},take:limit });
 
     result['nftItems'] = nftItems;
     result['nftInfos'] = nftInfos;
     result['accounts'] = accounts;
+    result['publishers'] = pubs.map(item => item.publisher);
   
     return res.status(200).json( result );
+  } catch (e) {
+    console.log('e',e)
+    return next(e);
+  }
+}
+
+//특정 아이템 정보
+exports.getCollectionInfo = async function (req:Request, res:Response, next:NextFunction) {
+
+  try {
+    var tokenAddr = req.params.tokenAddr;
+
+    const publisherCnt = await NftItem.count({tokenAddress:tokenAddr,publisher:Not("")})
+    const nftRank = await NftRank.findOne({tokenAddress:tokenAddr})
+    const ownerCnt = nftRank.ownerCnt;
+    const nftCnt = nftRank.nftCnt;
+    const avgPrice = nftRank.avgPrice;
+    const volume = nftRank.total;
+
+
+    return res.status(200).json( {
+      nftCnt: nftCnt,
+      publisherCnt: publisherCnt,
+      ownerCnt: ownerCnt,
+      avgPrice: avgPrice,
+      volume: volume
+    } );
   } catch (e) {
     return next(e);
   }
@@ -219,11 +271,12 @@ exports.getMetadata = async function (req:Request, res:Response, next:NextFuncti
     for(let i=0; i<tokenIds.length;i++){
 
       if(!(nftInfos[tokenAddr][tokenIds[i]]['desc'])){
-        var [name,description,image] = await nftService.getMetadata(tokenAddr,tokenIds[i]);
+        var [name,description,image,animationUrl] = await nftService.getMetadata(tokenAddr,tokenIds[i]);
         nftInfos[tokenAddr][tokenIds[i]]['desc'] = {
           name:name,
           description:description,
-          image:image
+          image:image,
+          animationUrl:animationUrl
         }
       }      
     }
