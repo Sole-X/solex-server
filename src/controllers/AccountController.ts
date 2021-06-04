@@ -1,5 +1,5 @@
 import { Container } from 'typedi';
-import { In,Like,Not } from 'typeorm';
+import { In,Like,Not,MoreThan,  MoreThanOrEqual, getRepository } from 'typeorm';
 
 import { Account } from '../entities/Account';
 import { TokenBalance } from '../entities/TokenBalance';
@@ -140,7 +140,6 @@ exports.getActivites = async function (req, res, next){
 
     var where = await commonService.makeWhereFromReq({ 
       accountAddress:accountAddr,
-      status:status,
       eventType:event,
       category:categories,
       collection:collections,
@@ -148,6 +147,11 @@ exports.getActivites = async function (req, res, next){
       currency:currency
     });
     
+    if(status=='ING'){
+      where['status']=Not(constant.STATUS.SALE.DONE);
+    }else if(status=='DONE'){
+      where['status']=constant.STATUS.SALE.DONE;
+    }
     if(txHash) where['txHash'] = txHash; 
 
     var activites = await Activity.pagination(page, limit, where,order);
@@ -191,6 +195,7 @@ exports.getStaking = async function (req, res, next){
   const commonService:any = Container.get("CommonService");
   const nodeService:any = Container.get("NodeService");
   const currency:any = Container.get("currency");
+  const constant:any = Container.get('constant');
 
   const accountAddr = req.params.accountAddr;
   const page = req.query.page || 1;
@@ -204,14 +209,31 @@ exports.getStaking = async function (req, res, next){
   const stake = await Stake.findOne(accountAddr);
   const rewardInfo = await nodeService.getRewardInfo(accountAddr);
 
+  var nowDate = new Date();
+  var pastDate = nowDate.getDate() - 7;
+  nowDate.setDate(pastDate);
+
+  const weekRewardRst: any = await getRepository(StakeActivity)
+  .createQueryBuilder()
+  .select(['currency',"SUM(amount) as weekAmount"])
+  .where({updatedAt:MoreThanOrEqual(nowDate),amount:MoreThan(0),accountAddress:accountAddr, type:constant.TYPE.STAKE.REWARD })
+  .groupBy('currency')
+  .getRawMany();
+  var weekReward = {};
+  for(var raw of weekRewardRst){
+    weekReward[raw.currency.toLowerCase()] = raw.weekAmount;
+  }
   var rewards = [];
   for(let tokenAddr in currency){
     if(currency[tokenAddr].reward==1){
       const yetAmount = (rewardInfo[tokenAddr]>0)?rewardInfo[tokenAddr]:0;
 
       const stakeReward = await StakeReward.findOne({where:{accountAddress:accountAddr,currency:tokenAddr}});  
+
       if(stakeReward){
         stakeReward.amount = yetAmount
+
+        if(tokenAddr in weekReward) stakeReward['weekAmount'] = weekReward[tokenAddr];
         rewards.push(stakeReward)
       }else{
         rewards.push({

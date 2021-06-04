@@ -38,9 +38,7 @@
   "paths": {
     "/v1/common/token/whitelist": {
       "get": {
-        "tags": [
-          "Common"
-        ],
+        "tags": ["Common"],
         "summary": "NFT&TOKEN whitelist",
         "responses": {
           "200": {
@@ -51,9 +49,7 @@
     },
     "/v1/common/sideInfo": {
       "get": {
-        "tags": [
-          "Common"
-        ],
+        "tags": ["Common"],
         "summary": "좌측 total 정보",
         "responses": {
           "200": {
@@ -64,9 +60,7 @@
     },
     "/v1/common/nameCheck/{username}": {
       "get": {
-        "tags": [
-          "Common"
-        ],
+        "tags": ["Common"],
         "summary": "이름 사용 가능 여부",
         "parameters": [
           {
@@ -87,9 +81,7 @@
     },
     "/v1/common/staking": {
       "get": {
-        "tags": [
-          "Common"
-        ],
+        "tags": ["Common"],
         "summary": "staking 정보",
         "responses": {
           "200": {
@@ -100,9 +92,7 @@
     },
     "/v1/common/report": {
       "post": {
-        "tags": [
-          "Common"
-        ],
+        "tags": ["Common"],
         "summary": "신고하기",
         "requestBody": {
           "required": true,
@@ -132,11 +122,36 @@
         }
       }
     },
+    "/v1/common/newsletter": {
+      "post": {
+        "tags": ["Common"],
+        "summary": "뉴스레터 이메일 등록",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "sideInfo"
+          }
+        }
+      }
+    },
+
     "/v1/nfts": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "아이템 검색",
         "parameters": [
           {
@@ -243,6 +258,23 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "publisher",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lifeStatus",
+            "description": "START(인기),DONE(생성일자)",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -274,9 +306,7 @@
     },
     "/v1/nfts/match": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "아이템 / 컬렉션 / 계정 일치 검색",
         "parameters": [
           {
@@ -307,9 +337,7 @@
     },
     "/v1/nfts/recentView/{accountAddr}": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "계정별 최근본 아이템",
         "parameters": [
           {
@@ -359,9 +387,7 @@
     },
     "/v1/nfts/mostLike": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "like 많은 아이템",
         "responses": {
           "200": {
@@ -393,9 +419,7 @@
     },
     "/v1/nfts/like/{accountAddr}": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "like 정보",
         "parameters": [
           {
@@ -453,11 +477,30 @@
         }
       }
     },
+    "/v1/nfts/{tokenAddr}": {
+      "get": {
+        "tags": ["Nft"],
+        "summary": "콜렉션 상세 정보",
+        "parameters": [
+          {
+            "name": "tokenAddr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "collection info"
+          }
+        }
+      }
+    },    
     "/v1/nfts/{tokenAddr}/{tokenId}": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "단일 아이템 상세 정보",
         "parameters": [
           {
@@ -525,9 +568,7 @@
     },
     "/v1/nfts/metadata": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "아이템 상세 정보",
         "parameters": [
           {
@@ -565,12 +606,10 @@
           }
         }
       }
-    },    
+    },
     "/v1/nfts/{tokenAddr}/{tokenId}/history": {
       "get": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "거래내역 & 아이템 가격 변동 데이터",
         "parameters": [
           {
@@ -630,9 +669,7 @@
     },
     "/v1/nfts/recentView/": {
       "post": {
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "summary": "최근본 아이템",
         "requestBody": {
           "required": true,
@@ -678,9 +715,7 @@
     "/v1/nfts/like": {
       "post": {
         "summary": "찜 등록",
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "requestBody": {
           "description": "Pet to add to the store",
           "required": true,
@@ -727,9 +762,7 @@
     "/v1/nfts/unlike": {
       "post": {
         "summary": "찜 해제",
-        "tags": [
-          "Nft"
-        ],
+        "tags": ["Nft"],
         "requestBody": {
           "required": true,
           "content": {
@@ -774,9 +807,7 @@
     },
     "/v1/account/{accountAddr}": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "사용자 공개정보",
         "description": "닉네임",
         "parameters": [
@@ -820,9 +851,7 @@
     },
     "/v1/account/{accountAddr}/totalBalance": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "보유 token 자산, item 개수",
         "description": "보유 token 자산, 예치 자산, 예치 아이템",
         "parameters": [
@@ -872,9 +901,7 @@
     },
     "/v1/account/{accountAddr}/nfts": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "My Items",
         "description": "deposit된 nft 목록",
         "parameters": [
@@ -915,7 +942,7 @@
             "name": "status",
             "in": "query",
             "required": false,
-            "description": "ex) SALE",
+            "description": "ex) SALE ",
             "schema": {
               "type": "string"
             }
@@ -939,9 +966,7 @@
     },
     "/v1/account/{accountAddr}/activites": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "My activity",
         "parameters": [
           {
@@ -1012,6 +1037,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "ex) ING,DONE ",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1023,9 +1057,7 @@
     },
     "/v1/account/{accountAddr}/staking": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "My staking info",
         "parameters": [
           {
@@ -1063,9 +1095,7 @@
     },
     "/v1/account/{accountAddr}/profile": {
       "post": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "사용자 정보 편집",
         "parameters": [
           {
@@ -1141,9 +1171,7 @@
     },
     "/v1/account/{accountAddr}/agreement": {
       "post": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "동의 설정",
         "parameters": [
           {
@@ -1202,9 +1230,7 @@
     },
     "/v1/sale/{tradeId}": {
       "get": {
-        "tags": [
-          "Sale"
-        ],
+        "tags": ["Sale"],
         "summary": "경매 정보",
         "parameters": [
           {
@@ -1226,16 +1252,13 @@
           }
         ],
         "responses": {
-          "200": {
-          }
+          "200": {}
         }
       }
     },
     "/v1/sells/{sellId}/declineNego/{negoId}": {
       "post": {
-        "tags": [
-          "Sale"
-        ],
+        "tags": ["Sale"],
         "summary": "거절",
         "parameters": [
           {
@@ -1304,9 +1327,7 @@
     },
     "/v1/buys": {
       "get": {
-        "tags": [
-          "Buy"
-        ],
+        "tags": ["Buy"],
         "summary": "구매 게시글 리스트",
         "parameters": [
           {
@@ -1403,6 +1424,23 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "publisher",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lifeStatus",
+            "description": "START,DONE",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1434,9 +1472,7 @@
     },
     "/v1/buys/{buyId}": {
       "get": {
-        "tags": [
-          "Buy"
-        ],
+        "tags": ["Buy"],
         "summary": "구매 정보",
         "parameters": [
           {
@@ -1477,9 +1513,7 @@
     },
     "/v1/explorer/activity": {
       "get": {
-        "tags": [
-          "Explorer"
-        ],
+        "tags": ["Explorer"],
         "summary": "Activity",
         "parameters": [
           {
@@ -1548,9 +1582,7 @@
     },
     "/v1/explorer/rank": {
       "get": {
-        "tags": [
-          "Explorer"
-        ],
+        "tags": ["Explorer"],
         "summary": "NFT 순위",
         "parameters": [
           {
@@ -1645,9 +1677,7 @@
     "/v1/sign/send": {
       "post": {
         "summary": "서명 트랜잭션",
-        "tags": [
-          "Sign"
-        ],
+        "tags": ["Sign"],
         "requestBody": {
           "description": "cate = AUCTION, SELL, BUY, TOKEN, NFT (TOKEN,NFT -> reserve contract)",
           "required": true,
@@ -1707,9 +1737,7 @@
     "/v1/admin/nft/collection": {
       "post": {
         "summary": "Nft Collection 정보 설정",
-        "tags": [
-          "Admin"
-        ],
+        "tags": ["Admin"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1772,9 +1800,7 @@
     "/v1/admin/nft/category": {
       "post": {
         "summary": "Nft 카테고리 설정",
-        "tags": [
-          "Admin"
-        ],
+        "tags": ["Admin"],
         "requestBody": {
           "description": "cate = ETH,KLAY,ART,ETC,COLLECTIBLES",
           "required": true,
@@ -1786,12 +1812,10 @@
                   "nftAddr": {
                     "type": "string",
                     "example": "0x49E508C437AF1F0Cad0b52A31963A2cfF02cc666"
-
                   },
                   "cate": {
                     "type": "string",
                     "example": "ETH,ETC"
-
                   }
                 }
               }
@@ -1829,9 +1853,7 @@
     },
     "/v1/admin/kasInit": {
       "get": {
-        "tags": [
-          "Admin"
-        ],
+        "tags": ["Admin"],
         "summary": "kas account 생성",
         "parameters": [
           {
@@ -1857,6 +1879,65 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/admin/sendletter": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "메일 전송",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "templateId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "sideInfo"
+          }
+        }
+      }
+    },
+    "/v1/admin/publisher": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "퍼블리셔 등록",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tokenAddr": {
+                    "type": "string"
+                  },
+                  "tokenIds": {
+                    "type": "string",
+                    "description": "쉼표 구분 ex) 5, 10, 1, 2"
+                  },
+                  "publisher": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "sideInfo"
           }
         }
       }
@@ -1899,7 +1980,7 @@
           "usdPrice": {
             "type": "number",
             "description": "마지막 거래 가격"
-          },          
+          },
           "status": {
             "type": "string",
             "description": "DEPOSIT:1, SELL:2, AUCTION:3, BUY:4, WITHDRAW:7, VAULT:9, SEND:10, MINT:11, BURN:12"
@@ -1996,11 +2077,11 @@
           },
           "declineReason": {
             "type": "string"
-          },                    
+          },
           "status": {
             "type": "string",
             "description": "START:2, CANCEL:3, REJECT:5, DONE:7, FAIL:8"
-          }                                       
+          }
         }
       },
       "Sale": {
@@ -2045,13 +2126,13 @@
           "straightPrice": {
             "type": "string",
             "description": "즉시 구매 가격"
-          },          
+          },
           "createTxHash": {
             "type": "string"
           },
           "lastTxHash": {
             "type": "string"
-          },                    
+          },
           "ownerAddress": {
             "type": "string"
           },
@@ -2098,9 +2179,9 @@
           "status": {
             "type": "string",
             "description": "START:2, CANCEL:3, REJECT:5, DONE:7, FAIL:8"
-          }                                       
+          }
         }
-      },      
+      },
       "Buy": {
         "type": "object",
         "properties": {
@@ -2184,14 +2265,11 @@
             "type": "string",
             "description": "usd 금액"
           }
-                                    
         }
-      },            
+      },
       "Error": {
         "type": "object",
-        "required": [
-          "msg"
-        ],
+        "required": ["msg"],
         "properties": {
           "msg": {
             "type": "string"

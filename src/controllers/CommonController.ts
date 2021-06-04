@@ -4,15 +4,14 @@ import { NftItem } from "../entities/NftItem";
 import { Category } from "../entities/Category";
 import { Variable } from "../entities/Variable";
 import { Sale } from "../entities/Sale";
+import { Newsletter } from "../entities/Newsletter";
+import { Buy } from "../entities/Buy";
 
 import { Container } from "typedi";
 import { RedisService } from '../services/RedisService';
 import banWord from '../config/banWord';
 import { getRepository, In,Not } from 'typeorm';
-import { Buy } from "../entities/Buy";
-import { constant } from "lodash";
 
-const nodemailer = require("nodemailer");
 
 exports.getStakingInfo = async function (req, res, next) {
   const nodeService:any = Container.get("NodeService");
@@ -77,6 +76,13 @@ exports.getSideInfo = async function (req, res, next) {
 
   try {
     const nftCnt = await redisService.hgetall('nftCnt');
+    const pubRst = await getRepository(NftItem).createQueryBuilder()
+    .select('publisher')
+    .where({"publisher":Not("")})
+    .distinct(true)
+    .limit(5)
+    .execute()
+    const pubs = pubRst.map(item=>item.publisher)
     var result = {};
     if(nftCnt && Object.keys(nftCnt).length>1){
       result = nftCnt;
@@ -84,13 +90,24 @@ exports.getSideInfo = async function (req, res, next) {
 
       result['nftCntAuction'] = await Sale.count({
         type:In([constant.TYPE.SALE.NORMAL_AUCTION,constant.TYPE.SALE.INSTANT_AUCTION]),
-        status:In([constant.STATUS.SALE.START,constant.STATUS.SALE.DONE])
+        status:In([constant.STATUS.SALE.START])
       });
       result['nftCntSell'] = await Sale.count({
         type:In([constant.TYPE.SALE.DIRECT_SELL,constant.TYPE.SALE.NEGOTIABLE_SELL]),
-        status:In([constant.STATUS.SALE.START,constant.STATUS.SALE.DONE])
+        status:In([constant.STATUS.SALE.START])
+      });
+      result['nftCntDone'] = await Sale.count({
+        type:In([constant.TYPE.SALE.NORMAL_AUCTION,constant.TYPE.SALE.INSTANT_AUCTION,constant.TYPE.SALE.DIRECT_SELL,constant.TYPE.SALE.NEGOTIABLE_SELL]),
+        status:In([constant.STATUS.SALE.DONE])
       });
 
+      result['nftCntBuy'] = await Buy.count({
+        status:In([constant.STATUS.BUY.START])
+      });
+
+      result['nftCntBuyDone'] = await Buy.count({
+        status:In([constant.STATUS.BUY.DONE])
+      });
       var table = ['buy','sale'];
       var query = "SELECT ";
 
@@ -134,7 +151,7 @@ exports.getSideInfo = async function (req, res, next) {
       redisService.expire("nftCnt",60);
     }
 
-    return res.status(200).json( { nftCnt:result } );
+    return res.status(200).json( { nftCnt:result,pubs:pubs } );
   } catch (e) {
     return next(e);
   }
@@ -142,6 +159,7 @@ exports.getSideInfo = async function (req, res, next) {
 
 
 exports.sendMail = async function (req, res, next) {
+  const mailService:any = Container.get("MailService");
 
   const tokenAddr = req.body.tokenAddress;
   const tokenId = req.body.tokenId;
@@ -149,23 +167,7 @@ exports.sendMail = async function (req, res, next) {
 
   try {
 
-    const mailOption = {
-      host: "localhost",
-      port: 25,
-      secure: false,
-      tls: {
-        rejectUnauthorized: false
-      }
-    };
-    const transporter = nodemailer.createTransport(mailOption);
-
-    let info = await transporter.sendMail({
-      from: '"solex" <solex@solex.ozys.net>',
-      to: ["wnrudgns73@ozys.net", 'lusterk@ozys.net'],
-      subject: "Report - "+tokenAddr+" #"+tokenId, 
-      text: reason,
-      html: "<b>"+reason+"</b>" 
-    });
+    const info = await mailService.report(tokenAddr, tokenId, reason);
 
     return res.status(200).json( {msg:info.response} );
   } catch (e) {
@@ -188,5 +190,30 @@ exports.nameCheck = async function (req, res, next) {
 
 }
 
+exports.registNewsletter = async function (req, res, next) {
 
+  const email = req.body.email;
 
+  try {
+    await Newsletter.insertIfNotExist({email:email});
+
+    return res.status(200).json( {msg:'success'} );
+  } catch (e) {
+    return next(e);
+  }
+}
+
+exports.sendNewsletter = async function (req, res, next) {
+  const mailService:any = Container.get("MailService");
+
+  const templateId = req.body.templateId;
+
+  try {
+    
+    const info = await mailService.sendNewsletter()
+
+    return res.status(200).json( {msg:info.response} );
+  } catch (e) {
+    return next(e);
+  }
+}

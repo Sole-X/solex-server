@@ -32,6 +32,6 @@ export default  {
   subscribers: [`${rootDir}/entities/hooks/*{.ts,.js}`],
   cli: {
     entitiesDir: `${rootDir}/entities`,
-    migrationsDir: `${rootDir}/migrations`
+    migrationsDir: `src/migrations`
   }
 }
