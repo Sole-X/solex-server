@@ -22,6 +22,9 @@ export class NftItemDesc extends ParentEntity{
   @Column("varchar", { name: "image", length: 255 , default: () => "''" })
   image: number;
 
+  @Column("text", { name: "animationUrl", nullable:true  })
+  animationUrl: string;
+
   @OneToOne(type => NftItem, (nft)=>nft.desc)
   @JoinColumn([
     { name: "tokenAddress", referencedColumnName: "tokenAddress" },

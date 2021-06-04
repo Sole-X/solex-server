@@ -2,6 +2,8 @@ import { Container } from "typedi";
 
 import { Category } from "../entities/Category";
 import { NftInfo } from "../entities/NftInfo";
+import { NftItem } from "../entities/NftItem";
+import { getRepository,In } from "typeorm";
 
 exports.setCategory = async function (req, res, next) {
 
@@ -71,6 +73,21 @@ exports.makeKasAccount = async function (req, res, next) {
   }
 }
 
+exports.addPublisher = async function (req, res, next) {
+  const tokenAddr = req.body.tokenAddr;
+  const tokenIds = req.body.tokenIds;
+  const publisher = req.body.publisher;
+
+  try {
+    const result = await getRepository(NftItem).update({tokenAddress:tokenAddr,tokenId:In(tokenIds.split(","))},{publisher:publisher});
+    return res.status(200).json( result );
+
+  } catch (e) {
+    return res.status(400).json( {msg:"FAIL:"+e.message} );
+  }
+
+}
+
 
 exports.banNft = async function (req, res, next) {
   const nodeService = Container.get("NodeService");
@@ -90,3 +107,4 @@ exports.banNft = async function (req, res, next) {
   }
 
 }
+
