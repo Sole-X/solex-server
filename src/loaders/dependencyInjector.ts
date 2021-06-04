@@ -9,6 +9,7 @@ import { NftService } from '../services/NftService'
 import { CommonService } from '../services/CommonService'
 import { SocketService } from '../services/SocketService'
 import { NodeService } from '../services/NodeService'
+import { MailService } from '../services/MailService'
 
 import { connectDB } from './database';
 
@@ -64,9 +65,9 @@ export default async () => {
     Container.get(CommonService);
     Container.get(NftService); 
     Container.get(NodeService);
+    Container.get(MailService);
     Container.get(KasService);
     Container.get(SocketService);
-    
     Container.set('migrationVersion',(await Variable.findOne({key:"migrationVersion"})).value)
 
     return;

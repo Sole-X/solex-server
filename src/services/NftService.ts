@@ -260,10 +260,18 @@ export class NftService {
 
       if(tokenURI){
         if(pattern.test(tokenURI)){
-          var [name,description,image] = await this.parseUrl(tokenURI);
+          var [name,description,image,animationUrl] = await this.parseUrl(tokenURI);
         }else{
-          var [name,description,image] = this.parseStandard(tokenURI);
+          var [name,description,image,animationUrl] = this.parseStandard(tokenURI);
         }
+        await NftItem.createQueryBuilder()
+        .insert()
+        .values({ tokenAddress: tokenAddr,tokenId:tokenId, 
+          tokenUri: tokenURI,status:this.constant.STATUS.NFT.WITHDRAW })
+        .orUpdate({ conflict_target: ['tokenAddress','tokenId'], overwrite: ['tokenUri'] })
+        .updateEntity(false)
+        .execute()
+
         await NftItemDesc.createQueryBuilder()
         .insert()
         .values({
@@ -272,15 +280,14 @@ export class NftService {
           tokenId:tokenId,
           name:name,
           description:description,
-          image:image
+          image:image,
+          animationUrl:animationUrl
         })
-        .orUpdate({ conflict_target: ['tokenAddress','tokenId'], overwrite: ['name','description','image'] })
+        .orUpdate({ conflict_target: ['tokenAddress','tokenId'], overwrite: ['name','description','image','animationUrl'] })
         .updateEntity(false)
         .execute();
-        const result = await getRepository(NftItem).update(
-          { tokenAddress: tokenAddr,tokenId:tokenId }, 
-          { tokenUri: tokenURI });
-        return [name,description,image];
+
+        return [name,description,image,animationUrl];
       }else{
         return ['','',''];
       }
@@ -302,20 +309,21 @@ export class NftService {
     };
 
     const data = await rp(requestOptions);
-
-    return [data.name,data.description,data.image];
+    var animationUrl = ("animation_url" in data)? data.animation_url: "";
+    return [data.name,data.description,data.image,animationUrl];
   }
 
   parseStandard(tokenURI){
-    var name,description,image;
+    var name,description,image,animationUrl;
     
     const data = JSON.parse(tokenURI);
     
     name = data.name;
     description = data.description;
     image = data.image;
-    
-    return [name,description,image];
+    animationUrl = ("animation_url" in data)? data.animation_url: "";
+
+    return [name,description,image,animationUrl];
   }
 
 }

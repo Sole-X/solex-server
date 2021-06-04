@@ -1,5 +1,6 @@
 import { Router } from 'express';
 const adminCtrl = require("../../controllers/AdminController");
+const commonCtrl = require("../../controllers/CommonController");
 
 const route = Router();
 const passport = require('passport');
@@ -40,6 +41,8 @@ export default (app: Router) => {
   route.get('/test', function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename)+ '/resources/index.html'));
   });
-  
+  route.post('/sendletter', commonCtrl.sendNewsletter)
+
+  route.post('/publisher', adminCtrl.addPublisher)
 
 };

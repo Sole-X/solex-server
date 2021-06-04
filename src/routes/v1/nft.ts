@@ -12,7 +12,7 @@ export default (app: Router) => {
   app.use('/v1/nfts', route);
 
   //아이템 검색
-  route.get('', commonValidationRules(), validate,nftCtrl.saleSearch)
+  route.get('', commonValidationRules(), validate, nftCtrl.saleSearch)
 
   //아이템 검색
   route.get('/match', nftCtrl.matchSearch)
@@ -46,6 +46,9 @@ export default (app: Router) => {
 
   //체인별 최신 아이템 목록
   route.get('/latest/:chainName', nftCtrl.latestChain)
+
+  //컬렉션 정보 호출
+  route.get('/:tokenAddr', nftValidationRules(), validate, nftCtrl.getCollectionInfo)
 
   //단일 아이템 정보 호출
   route.get('/:tokenAddr/:tokenId', nftValidationRules(), validate, nftCtrl.getNft)
