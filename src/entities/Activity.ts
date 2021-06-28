@@ -1,26 +1,33 @@
-import { Column, Entity,PrimaryGeneratedColumn,Index,OneToOne,JoinColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Index,
+  OneToOne,
+  JoinColumn,
+} from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 import { NftItemDesc } from "./NftItemDesc";
 
 @Index("idx_tradeId", ["tradeId"], {})
 @Entity("activity")
-export class Activity extends ParentEntity{
+export class Activity extends ParentEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 
-  @Column("tinyint", { name: "eventType", default: () => "''"  })
+  @Column("tinyint", { name: "eventType", default: () => "''" })
   eventType: number;
 
   @Column("tinyint", { name: "status", unsigned: true, default: () => "'1'" })
   status: number;
-  
-  @Column("tinyint", { name: "tradeType",  default: () => "0" })
+
+  @Column("tinyint", { name: "tradeType", default: () => "0" })
   tradeType: number;
 
-  @Column("varchar", { name: "tradeId", length: 100, default: () => "''"  })
+  @Column("varchar", { name: "tradeId", length: 100, default: () => "''" })
   tradeId: string;
 
-  @Column("varchar", { name: "txHash", length: 100, default: () => "''"  })
+  @Column("varchar", { name: "txHash", length: 100, default: () => "''" })
   txHash: string;
 
   @Column("varchar", { name: "tokenAddress", length: 100, default: () => "''" })
@@ -48,9 +55,13 @@ export class Activity extends ParentEntity{
     scale: 2,
     default: () => "'0'",
   })
-  usdPrice: string;  
-  
-  @Column("varchar", { name: "accountAddress", length: 100, default: () => "''" })
+  usdPrice: string;
+
+  @Column("varchar", {
+    name: "accountAddress",
+    length: 100,
+    default: () => "''",
+  })
   accountAddress: string;
 
   @Column("varchar", { name: "fromAddress", length: 100, default: () => "''" })
@@ -59,7 +70,7 @@ export class Activity extends ParentEntity{
   @Column("varchar", { name: "toAddress", length: 100, default: () => "''" })
   toAddress: string;
 
-  @Column("int", { name: "bridgeId", default: () => "0"  })
+  @Column("int", { name: "bridgeId", default: () => "0" })
   bridgeId: number;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
@@ -68,11 +79,10 @@ export class Activity extends ParentEntity{
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
 
-  @OneToOne((type) => NftItemDesc,(desc)=>desc.nft)
+  @OneToOne((type) => NftItemDesc, (desc) => desc.nft)
   @JoinColumn([
     { name: "tokenAddress", referencedColumnName: "tokenAddress" },
-    { name: "tokenId", referencedColumnName: "tokenId" }
+    { name: "tokenId", referencedColumnName: "tokenId" },
   ])
-  nftDesc?:NftItemDesc
-  
+  nftDesc?: NftItemDesc;
 }

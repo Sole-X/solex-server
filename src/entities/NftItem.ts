@@ -1,8 +1,7 @@
 import { Column, Entity, Index, OneToOne, JoinColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
-import { Sale } from './Sale'
+import { Sale } from "./Sale";
 import { NftItemDesc } from "./NftItemDesc";
-
 
 @Index("idx_owner", ["ownerAddress"], {})
 @Index("idx_platform", ["platform"], {})
@@ -64,17 +63,14 @@ export class NftItem extends ParentEntity {
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
 
-  @OneToOne(type => Sale)
-  @JoinColumn([
-    { name: "tradeId", referencedColumnName: "id" }
-  ])
+  @OneToOne((type) => Sale)
+  @JoinColumn([{ name: "tradeId", referencedColumnName: "id" }])
   sale?: Sale;
 
   @OneToOne((type) => NftItemDesc, (desc) => desc.nft)
   @JoinColumn([
     { name: "tokenAddress", referencedColumnName: "tokenAddress" },
-    { name: "tokenId", referencedColumnName: "tokenId" }
+    { name: "tokenId", referencedColumnName: "tokenId" },
   ])
-  desc?: NftItemDesc
-
+  desc?: NftItemDesc;
 }

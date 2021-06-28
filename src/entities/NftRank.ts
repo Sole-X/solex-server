@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn,Index } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Index } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("nft_rank")
@@ -7,8 +7,7 @@ import { ParentEntity } from "./ParentEntity";
 @Index("idx_tradeCnt", ["tradeCnt"], {})
 @Index("idx_nftCnt", ["nftCnt"], {})
 @Index("idx_ownerCnt", ["ownerCnt"], {})
-export class NftRank extends ParentEntity{
-
+export class NftRank extends ParentEntity {
   @Column("varchar", { primary: true, name: "tokenAddress", length: 100 })
   tokenAddress: string;
 
@@ -74,5 +73,4 @@ export class NftRank extends ParentEntity{
     default: () => "'0'",
   })
   ownerCnt: string;
-
 }

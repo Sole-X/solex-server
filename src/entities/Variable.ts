@@ -2,7 +2,7 @@ import { Column, Entity } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("variable")
-export class Variable extends ParentEntity{
+export class Variable extends ParentEntity {
   @Column("varchar", { primary: true, name: "key", length: 45 })
   key: string;
 

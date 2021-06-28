@@ -1,21 +1,26 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn,ManyToOne,JoinColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 import { Sale } from "./Sale";
 
 @Index("idx_wallet", ["accountAddress"], {})
 @Index("idx_auction", ["auctionId"], {})
 @Entity("auction_bid")
-export class AuctionBid extends ParentEntity{
+export class AuctionBid extends ParentEntity {
   @Column("varchar", { primary: true, name: "id", length: 66 })
   id: string;
 
   @Column("varchar", { name: "accountAddress", length: 100 })
   accountAddress: string;
 
-  @ManyToOne(type => Sale, sale => sale.id)
-  @JoinColumn([
-    { name: "auctionId", referencedColumnName: "id" }
-  ])
+  @ManyToOne((type) => Sale, (sale) => sale.id)
+  @JoinColumn([{ name: "auctionId", referencedColumnName: "id" }])
   @Column("varchar", { name: "auctionId", length: 66 })
   auctionId: string;
 
@@ -52,5 +57,4 @@ export class AuctionBid extends ParentEntity{
 
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
-
 }

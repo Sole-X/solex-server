@@ -1,8 +1,15 @@
-import { Column, Entity, Index, OneToOne,OneToMany, JoinColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToOne,
+  OneToMany,
+  JoinColumn,
+} from "typeorm";
 import { ParentEntity } from "./ParentEntity";
-import { AuctionBid } from './AuctionBid'
-import { SellNego } from './SellNego'
-import { NftItemDesc } from './NftItemDesc'
+import { AuctionBid } from "./AuctionBid";
+import { SellNego } from "./SellNego";
+import { NftItemDesc } from "./NftItemDesc";
 
 @Index("idx_nft", ["tokenAddress", "tokenId"], {})
 @Index("idx_currency", ["currency"], {})
@@ -13,7 +20,7 @@ import { NftItemDesc } from './NftItemDesc'
 @Index("idx_liked", ["liked"], {})
 @Index("idx_updatedAt", ["updatedAt"], {})
 @Entity("sale")
-export class Sale extends ParentEntity{
+export class Sale extends ParentEntity {
   @Column("varchar", { primary: true, name: "id", length: 66 })
   id: string;
 
@@ -25,7 +32,7 @@ export class Sale extends ParentEntity{
 
   @Column("varchar", { name: "tokenName", length: 100 })
   tokenName: string;
-  
+
   @Column("varchar", { name: "currency", length: 100 })
   currency: string;
 
@@ -61,7 +68,7 @@ export class Sale extends ParentEntity{
     default: () => "'0.00000000'",
   })
   usdPrice: string;
-  
+
   @Column("decimal", {
     name: "straightPrice",
     unsigned: true,
@@ -74,7 +81,7 @@ export class Sale extends ParentEntity{
   @Column("varchar", { name: "createTxHash", length: 100 })
   createTxHash: string;
 
-  @Column("varchar", { name: "lastTxHash", length: 100 , default: () => "''"})
+  @Column("varchar", { name: "lastTxHash", length: 100, default: () => "''" })
   lastTxHash: string;
 
   @Column("varchar", { name: "ownerAddress", length: 100 })
@@ -101,22 +108,18 @@ export class Sale extends ParentEntity{
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
 
-  @OneToMany(type => AuctionBid, (bid)=>bid.auctionId)
-  @JoinColumn([
-    { name: "id", referencedColumnName: "auctionId" }
-  ])
-  bids?:AuctionBid[];
+  @OneToMany((type) => AuctionBid, (bid) => bid.auctionId)
+  @JoinColumn([{ name: "id", referencedColumnName: "auctionId" }])
+  bids?: AuctionBid[];
 
-  @OneToMany(type => SellNego, (nego)=>nego.sellId)
-  @JoinColumn([
-    { name: "id", referencedColumnName: "sellId" }
-  ])
-  negos?:SellNego[];
+  @OneToMany((type) => SellNego, (nego) => nego.sellId)
+  @JoinColumn([{ name: "id", referencedColumnName: "sellId" }])
+  negos?: SellNego[];
 
-  @OneToOne((type) => NftItemDesc,(desc)=>desc.nft)
+  @OneToOne((type) => NftItemDesc, (desc) => desc.nft)
   @JoinColumn([
     { name: "tokenAddress", referencedColumnName: "tokenAddress" },
-    { name: "tokenId", referencedColumnName: "tokenId" }
+    { name: "tokenId", referencedColumnName: "tokenId" },
   ])
-  desc?:NftItemDesc
+  desc?: NftItemDesc;
 }

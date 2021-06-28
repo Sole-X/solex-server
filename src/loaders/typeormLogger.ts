@@ -1,12 +1,12 @@
-import { Logger, QueryRunner } from 'typeorm';
+import { Logger, QueryRunner } from "typeorm";
 import {
   createLogger,
   Logger as WinstonLogger,
   transports,
   format,
-} from 'winston';
-import winstonDaily from 'winston-daily-rotate-file';
-import winston from 'winston';
+} from "winston";
+import winstonDaily from "winston-daily-rotate-file";
+import winston from "winston";
 
 export class CustomLogger implements Logger {
   private readonly queryLogger: WinstonLogger;
@@ -16,12 +16,12 @@ export class CustomLogger implements Logger {
       ({ level, message, label, timestamp }) =>
         `${timestamp} [${label}] ${level}: ${message}`
     );
-    
+
     this.queryLogger = winston.createLogger({
       transports: new winstonDaily({
-        level: 'warn',
-        datePattern: 'YYYY-MM-DD', 
-        dirname: 'logs/error',  
+        level: "warn",
+        datePattern: "YYYY-MM-DD",
+        dirname: "logs/error",
         filename: `typeorm.%DATE%.error.log`,
         maxFiles: 60,
         zippedArchive: true,
@@ -41,11 +41,11 @@ export class CustomLogger implements Logger {
     queryRunner?: QueryRunner
   ) {
     this.queryLogger.error({
-      level: 'error',
+      level: "error",
       message: `${error} - ${query} - ${JSON.stringify(parameters)}`,
       timestamp: Date.now(),
-      label: 'query',
-    });   
+      label: "query",
+    });
   }
 
   logQuerySlow(
@@ -55,32 +55,32 @@ export class CustomLogger implements Logger {
     queryRunner?: QueryRunner
   ) {
     this.queryLogger.error({
-      level: 'error',
+      level: "error",
       message: `${time} - ${query} - ${JSON.stringify(parameters)}`,
       timestamp: Date.now(),
-      label: 'slow',
+      label: "slow",
     });
   }
 
   logSchemaBuild(message: string, queryRunner?: QueryRunner) {
     this.queryLogger.log({
-      level: 'warn',
+      level: "warn",
       message,
       timestamp: Date.now(),
-      label: 'schema',
+      label: "schema",
     });
   }
 
   logMigration(message: string, queryRunner?: QueryRunner) {
     this.queryLogger.log({
-      level: 'warn',
+      level: "warn",
       message,
       timestamp: Date.now(),
-      label: 'migration',
-    });    
+      label: "migration",
+    });
   }
 
-  log(level: 'log' | 'info' | 'warn', message: any, queryRunner?: QueryRunner) {
+  log(level: "log" | "info" | "warn", message: any, queryRunner?: QueryRunner) {
     return;
   }
 }

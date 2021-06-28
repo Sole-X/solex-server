@@ -2,7 +2,7 @@ import { Column, Entity } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("token_balance")
-export class TokenBalance extends ParentEntity{
+export class TokenBalance extends ParentEntity {
   @Column("varchar", { primary: true, name: "accountAddress", length: 100 })
   accountAddress: string;
 

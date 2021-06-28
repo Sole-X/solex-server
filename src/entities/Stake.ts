@@ -1,9 +1,14 @@
-import { Column, Entity,PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("stake")
-export class Stake extends ParentEntity{
-  @Column("varchar", { primary: true, name: "accountAddress", length: 100, default: () => "''" })
+export class Stake extends ParentEntity {
+  @Column("varchar", {
+    primary: true,
+    name: "accountAddress",
+    length: 100,
+    default: () => "''",
+  })
   accountAddress: string;
 
   @Column("decimal", {
@@ -21,7 +26,7 @@ export class Stake extends ParentEntity{
     scale: 0,
     default: () => "'0'",
   })
-  unstakingAmount: string;  
+  unstakingAmount: string;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

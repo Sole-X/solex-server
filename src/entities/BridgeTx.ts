@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn,Index } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Index } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Index("idx_hash", ["hashId"], {})
 @Entity("bridge_tx")
-export class BridgeTx extends ParentEntity{
+export class BridgeTx extends ParentEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 

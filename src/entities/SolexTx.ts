@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("solex_tx")
-export class SolexTx extends ParentEntity{
+export class SolexTx extends ParentEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 

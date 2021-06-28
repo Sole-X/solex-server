@@ -497,7 +497,7 @@
           }
         }
       }
-    },    
+    },
     "/v1/nfts/{tokenAddr}/{tokenId}": {
       "get": {
         "tags": ["Nft"],

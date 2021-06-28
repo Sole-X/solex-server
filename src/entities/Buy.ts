@@ -10,7 +10,7 @@ import { NftItemDesc } from "./NftItemDesc";
 @Index("idx_liked", ["liked"], {})
 @Index("idx_updatedAt", ["updatedAt"], {})
 @Entity("buy")
-export class Buy extends ParentEntity{
+export class Buy extends ParentEntity {
   @Column("varchar", { primary: true, name: "id", length: 66 })
   id: string;
 
@@ -35,7 +35,7 @@ export class Buy extends ParentEntity{
   @Column("datetime", { name: "startTime", default: () => "CURRENT_TIMESTAMP" })
   startTime: Date;
 
-  @Column("datetime", { name: "endTime", nullable:true })
+  @Column("datetime", { name: "endTime", nullable: true })
   endTime: Date;
 
   @Column("decimal", {
@@ -80,11 +80,10 @@ export class Buy extends ParentEntity{
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
 
-  @OneToOne((type) => NftItemDesc,(desc)=>desc.nft)
+  @OneToOne((type) => NftItemDesc, (desc) => desc.nft)
   @JoinColumn([
     { name: "tokenAddress", referencedColumnName: "tokenAddress" },
-    { name: "tokenId", referencedColumnName: "tokenId" }
+    { name: "tokenId", referencedColumnName: "tokenId" },
   ])
-  desc?:NftItemDesc
-
+  desc?: NftItemDesc;
 }

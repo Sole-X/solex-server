@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("nft_queue")
-export class NftQueue extends ParentEntity{
+export class NftQueue extends ParentEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 
@@ -14,6 +14,4 @@ export class NftQueue extends ParentEntity{
 
   @Column("varchar", { name: "type", length: 10 })
   type: string;
-
-
 }

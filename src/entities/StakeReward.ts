@@ -1,13 +1,22 @@
-import { Column, Entity,PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("stake_reward")
-export class StakeReward extends ParentEntity{
-
-  @Column("varchar", { primary: true, name: "accountAddress", length: 100, default: () => "''" })
+export class StakeReward extends ParentEntity {
+  @Column("varchar", {
+    primary: true,
+    name: "accountAddress",
+    length: 100,
+    default: () => "''",
+  })
   accountAddress: string;
 
-  @Column("varchar", { primary: true, name: "currency", length: 100, default: () => "''" })
+  @Column("varchar", {
+    primary: true,
+    name: "currency",
+    length: 100,
+    default: () => "''",
+  })
   currency: string;
 
   @Column("decimal", {
@@ -17,7 +26,7 @@ export class StakeReward extends ParentEntity{
     scale: 0,
     default: () => "'0'",
   })
-  userIndex: string; 
+  userIndex: string;
 
   @Column("decimal", {
     name: "amount",
@@ -26,7 +35,7 @@ export class StakeReward extends ParentEntity{
     scale: 0,
     default: () => "'0'",
   })
-  amount: string; 
+  amount: string;
 
   @Column("decimal", {
     name: "totalReward",
@@ -35,7 +44,7 @@ export class StakeReward extends ParentEntity{
     scale: 0,
     default: () => "'0'",
   })
-  totalReward: string;  
+  totalReward: string;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;

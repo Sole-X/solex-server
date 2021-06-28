@@ -1,21 +1,26 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn,ManyToOne,JoinColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { ParentEntity } from "./ParentEntity";
-import { Sale } from './Sale'
+import { Sale } from "./Sale";
 
 @Index("idx_wallet", ["accountAddress"], {})
 @Index("idx_sell", ["sellId"], {})
 @Entity("sell_nego")
-export class SellNego extends ParentEntity{
+export class SellNego extends ParentEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", unsigned: true })
   id: number;
 
   @Column("varchar", { name: "accountAddress", length: 100 })
   accountAddress: string;
 
-  @ManyToOne(type => Sale, sale => sale.id)
-  @JoinColumn([
-    { name: "sellId", referencedColumnName: "id" }
-  ])
+  @ManyToOne((type) => Sale, (sale) => sale.id)
+  @JoinColumn([{ name: "sellId", referencedColumnName: "id" }])
   @Column("varchar", { name: "sellId", length: 66 })
   sellId: string;
 
@@ -40,10 +45,18 @@ export class SellNego extends ParentEntity{
   })
   usdPrice: string;
 
-  @Column("tinyint", { name: "declineType", unsigned: true, default: () => "0" })
+  @Column("tinyint", {
+    name: "declineType",
+    unsigned: true,
+    default: () => "0",
+  })
   declineType: number;
 
-  @Column("varchar", { name: "declineReason", length: 300, default: () => "''" })
+  @Column("varchar", {
+    name: "declineReason",
+    length: 300,
+    default: () => "''",
+  })
   declineReason: string;
 
   @Column("tinyint", { name: "status", unsigned: true, default: () => "1" })

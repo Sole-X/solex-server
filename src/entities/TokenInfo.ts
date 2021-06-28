@@ -2,9 +2,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("token_info")
-export class TokenInfo extends ParentEntity{
-
-  @Column("varchar", { primary: true,name: "tokenAddress", length: 100 })
+export class TokenInfo extends ParentEntity {
+  @Column("varchar", { primary: true, name: "tokenAddress", length: 100 })
   tokenAddress: string;
 
   @Column("varchar", { name: "platform", length: 10, default: () => "'ETH'" })
@@ -54,7 +53,7 @@ export class TokenInfo extends ParentEntity{
     scale: 0,
     default: () => "0",
   })
-  stakeAccReward: string;  
+  stakeAccReward: string;
 
   @Column("decimal", {
     name: "feeReceiver",
@@ -63,7 +62,7 @@ export class TokenInfo extends ParentEntity{
     scale: 0,
     default: () => "0",
   })
-  feeReceiver: string;  
+  feeReceiver: string;
 
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;

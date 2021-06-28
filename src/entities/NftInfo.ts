@@ -2,9 +2,8 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 @Entity("nft_info")
-export class NftInfo extends ParentEntity{
-
-  @Column("varchar", { primary: true,name: "tokenAddress", length: 100 })
+export class NftInfo extends ParentEntity {
+  @Column("varchar", { primary: true, name: "tokenAddress", length: 100 })
   tokenAddress: string;
 
   @Column("varchar", { name: "platform", length: 10, default: () => "'ETH'" })
@@ -24,7 +23,7 @@ export class NftInfo extends ParentEntity{
 
   @Column("varchar", { name: "desc", length: 255 })
   desc: string;
-  
+
   @Column("varchar", { name: "link", length: 255 })
   link: string;
 

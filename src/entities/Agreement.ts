@@ -1,4 +1,4 @@
-import { Column, Entity,ValueTransformer } from "typeorm";
+import { Column, Entity, ValueTransformer } from "typeorm";
 import { ParentEntity } from "./ParentEntity";
 
 class BoolBitTransformer implements ValueTransformer {
@@ -21,14 +21,22 @@ class BoolBitTransformer implements ValueTransformer {
 }
 
 @Entity("agreement")
-export class Agreement extends ParentEntity{
+export class Agreement extends ParentEntity {
   @Column("varchar", { primary: true, name: "accountAddress", length: 100 })
   accountAddress: string;
 
-  @Column("tinyint", { name: "agreementCate", unsigned: true, default: () => "'0'" })
+  @Column("tinyint", {
+    name: "agreementCate",
+    unsigned: true,
+    default: () => "'0'",
+  })
   agreementCate: number;
 
-  @Column("tinyint", { name: "status", transformer: new BoolBitTransformer(),default: () => "0" })
+  @Column("tinyint", {
+    name: "status",
+    transformer: new BoolBitTransformer(),
+    default: () => "0",
+  })
   status: number;
 
   @Column("datetime", { name: "createdAt", default: () => "CURRENT_TIMESTAMP" })
@@ -36,5 +44,4 @@ export class Agreement extends ParentEntity{
 
   @Column("datetime", { name: "updatedAt", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
-
 }
