@@ -1,11 +1,9 @@
 import { CustomLogger } from '../loaders/typeormLogger';
 import { ConnectionOptions, DatabaseType } from 'typeorm';
 const postgresDatabase: DatabaseType = 'mysql';
-const dotEnv = require('dotenv-flow');
 const logging: ('query' | 'error' | 'schema' | 'warn' | 'info' | 'log' | 'migration')[] = ['error', 'warn'];
 
 var rootDir = process.env.PWD;
-dotEnv.config();
 
 if (process.argv[0].includes('ts-node')) {
   rootDir += '/src';

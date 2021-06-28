@@ -25,7 +25,7 @@ if (process.env.NODE_ENV != 'local') {
   transports.push(
     new SlackHook({
       level: 'error',
-      webhookUrl: 'https://hooks.slack.com/services/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',
+      webhookUrl: process.env.SLACK_WEBHOOK_URL,
       formatter: (info) => {
         return {
           text: process.env.NODE_ENV,
