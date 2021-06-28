@@ -1,7 +1,7 @@
-import { Container } from "typedi";
+import { Container } from 'typedi';
 
-import { Logger } from "winston";
-import { Account } from "../../entities/Account";
+import { Logger } from 'winston';
+import { Account } from '../../entities/Account';
 
 /**
  * Attach user to req.currentUser
@@ -10,7 +10,7 @@ import { Account } from "../../entities/Account";
  * @param {*} next  Express next Function
  */
 const attachCurrentUser = async (req, res, next) => {
-  const Logger: Logger = Container.get("logger");
+  const Logger: Logger = Container.get('logger');
   try {
     const userRecord = await Account.findOne({
       accountAddress: req.token._addr,
@@ -19,12 +19,12 @@ const attachCurrentUser = async (req, res, next) => {
       //return res.sendStatus(401);
     }
 
-    Reflect.deleteProperty(userRecord, "password");
-    Reflect.deleteProperty(userRecord, "salt");
+    Reflect.deleteProperty(userRecord, 'password');
+    Reflect.deleteProperty(userRecord, 'salt');
     req.currentUser = userRecord;
     return next();
   } catch (e) {
-    Logger.error("🔥 Error attaching user to req: %o", e);
+    Logger.error('🔥 Error attaching user to req: %o', e);
     return next(e);
   }
 };

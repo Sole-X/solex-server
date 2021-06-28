@@ -1,16 +1,13 @@
-import { Service, Inject } from "typedi";
-import {
-  humanReadableStringToHexAddress,
-  isAddress,
-} from "caver-js/packages/caver-utils/";
-import { TokenInfo } from "../entities/TokenInfo";
-import { Variable } from "../entities/Variable";
-import { StakeReward } from "../entities/StakeReward";
-import { Stake } from "../entities/Stake";
-const ethjs = require("ethereumjs-util");
-const EthContract = require("web3-eth-contract");
+import { Service, Inject } from 'typedi';
+import { humanReadableStringToHexAddress, isAddress } from 'caver-js/packages/caver-utils/';
+import { TokenInfo } from '../entities/TokenInfo';
+import { Variable } from '../entities/Variable';
+import { StakeReward } from '../entities/StakeReward';
+import { Stake } from '../entities/Stake';
+const ethjs = require('ethereumjs-util');
+const EthContract = require('web3-eth-contract');
 
-@Service("NodeService")
+@Service('NodeService')
 export class NodeService {
   kip7;
   kip17;
@@ -21,38 +18,33 @@ export class NodeService {
   reserveFeeNumber = 5;
 
   constructor(
-    @Inject("logger") private logger,
-    @Inject("caverClient") private caverClient,
-    @Inject("ethClient") private ethClient,
-    @Inject("contractAddress") private contractAddress,
-    @Inject("AbiService") private abiService,
-    @Inject("CommonService") private commonService,
-    @Inject("RedisService") private redisService
+    @Inject('logger') private logger,
+    @Inject('caverClient') private caverClient,
+    @Inject('ethClient') private ethClient,
+    @Inject('contractAddress') private contractAddress,
+    @Inject('AbiService') private abiService,
+    @Inject('CommonService') private commonService,
+    @Inject('RedisService') private redisService,
   ) {
     const { KIP7, KIP17, Contract } = this.caverClient.klay;
     const EthContract = this.ethClient.eth.Contract;
 
     this.kip7 = new KIP7();
     this.kip17 = new KIP17();
-    this.stakeContract = new Contract(this.abiService.getAbiMap("stake-abi"));
-    this.stakeContract.options.address = this.contractAddress["StakeContract"];
-    this.reserveContract = new Contract(
-      this.abiService.getAbiMap("reserve-abi")
-    );
-    this.reserveContract.options.address = this.contractAddress[
-      "ReserveContract"
-    ];
-    this.erc20 = new EthContract(this.abiService.getAbiMap("kip7-abi"));
+    this.stakeContract = new Contract(this.abiService.getAbiMap('stake-abi'));
+    this.stakeContract.options.address = this.contractAddress['StakeContract'];
+    this.reserveContract = new Contract(this.abiService.getAbiMap('reserve-abi'));
+    this.reserveContract.options.address = this.contractAddress['ReserveContract'];
+    this.erc20 = new EthContract(this.abiService.getAbiMap('kip7-abi'));
   }
 
   async getTokenURI(address, tokenId) {
     this.kip17.options.address = address;
     try {
-      if (this.kip17.supportsInterface("0x80ac58cd"))
-        return await this.kip17.tokenURI(tokenId);
+      if (this.kip17.supportsInterface('0x80ac58cd')) return await this.kip17.tokenURI(tokenId);
     } catch (e) {
-      this.logger.error("Get TokenURI error" + e.message);
-      return "";
+      this.logger.error('Get TokenURI error' + e.message);
+      return '';
     }
   }
 
@@ -68,13 +60,13 @@ export class NodeService {
       const symbol = await kip.symbol();
 
       if (isNft) {
-        return [name, symbol, ""];
+        return [name, symbol, ''];
       } else {
         const decimal = await kip.decimals();
         return [name, symbol, decimal];
       }
     } catch (e) {
-      return ["", "", "0"];
+      return ['', '', '0'];
     }
   }
 
@@ -82,13 +74,13 @@ export class NodeService {
     return this.ethClient.eth.getTransactionReceipt(hash);
   }
 
-  getBlockNumber(type = "caver") {
-    if (type == "eth") return this.ethClient.eth.getBlockNumber();
+  getBlockNumber(type = 'caver') {
+    if (type == 'eth') return this.ethClient.eth.getBlockNumber();
     return this.caverClient.klay.getBlockNumber();
   }
 
-  getBlockWithConsensusInfo(blockNumber, type = "caver") {
-    if (type == "eth") return this.ethClient.eth.getBlock(blockNumber, true);
+  getBlockWithConsensusInfo(blockNumber, type = 'caver') {
+    if (type == 'eth') return this.ethClient.eth.getBlock(blockNumber, true);
     return this.caverClient.klay.getBlockWithConsensusInfo(blockNumber, true);
   }
 
@@ -121,9 +113,7 @@ export class NodeService {
   }
 
   async getFeeInfo(blockNumber = null) {
-    this.reserveContract.options.address = this.contractAddress[
-      "ReserveContract"
-    ];
+    this.reserveContract.options.address = this.contractAddress['ReserveContract'];
 
     var feeDenom = await this.reserveContract.methods
       .feeDenom()
@@ -154,10 +144,7 @@ export class NodeService {
   //차감된 금액에서 원래 금액 알아오기
   async getPaidAmount(amount) {
     amount = this.commonService.mulBN(amount, this.reserveFeeDenom);
-    amount = this.commonService.divBN(
-      amount,
-      this.reserveFeeDenom - this.reserveFeeNumber
-    );
+    amount = this.commonService.divBN(amount, this.reserveFeeDenom - this.reserveFeeNumber);
     return amount.toString();
   }
 
@@ -165,7 +152,7 @@ export class NodeService {
     var result = {};
     var tokenInfos = await TokenInfo.find({ where: { reward: 1 } });
     var IndexPrecision = 1000000000000000000;
-    var tsVal = await Variable.findOne({ where: { key: "totalStaking" } });
+    var tsVal = await Variable.findOne({ where: { key: 'totalStaking' } });
     var totalStaking = Number(tsVal.value);
 
     const accountStake = await Stake.findOne(to);
@@ -190,11 +177,8 @@ export class NodeService {
         var userInfo = stakeReward ? Number(stakeReward.userIndex) : 0;
 
         if (reward > userInfo) {
-          var amount = this.commonService.toMaxUnit(
-            (stakingBalance * (reward - userInfo)) / IndexPrecision,
-            18
-          );
-          const dot = amount.indexOf(".");
+          var amount = this.commonService.toMaxUnit((stakingBalance * (reward - userInfo)) / IndexPrecision, 18);
+          const dot = amount.indexOf('.');
           amount = amount.toString().substring(0, dot + 4);
 
           result[tokenAddr.toLowerCase()] = amount;
@@ -208,22 +192,19 @@ export class NodeService {
   }
 
   async getTrixTotalSupply() {
-    var totalSupply = await this.redisService.get("trixTotalSuply");
-    if (process.env.NODE_ENV != "live") return "9999982296000000000000000000";
+    var totalSupply = await this.redisService.get('trixTotalSuply');
+    if (process.env.NODE_ENV != 'live') return '9999982296000000000000000000';
     if (totalSupply > 0 || false) {
       return totalSupply;
     } else {
-      this.erc20.options.address = this.contractAddress["TRIX"];
-      totalSupply = await this.erc20.methods
-        .totalSupply()
-        .call()
-        .catch(console.log);
+      this.erc20.options.address = this.contractAddress['TRIX'];
+      totalSupply = await this.erc20.methods.totalSupply().call().catch(console.log);
 
       if (totalSupply > 0) {
-        this.redisService.set("trixTotalSuply", totalSupply);
-        this.redisService.expire("trixTotalSuply", 60);
+        this.redisService.set('trixTotalSuply', totalSupply);
+        this.redisService.expire('trixTotalSuply', 60);
       } else {
-        return "9999982296000000000000000000";
+        return '9999982296000000000000000000';
       }
     }
   }
@@ -239,30 +220,19 @@ export class NodeService {
       msgHash = ethjs.toBuffer(this.getHashMessage(msgBuffer));
     }
 
-    signHash = signHash.replace(/['"]+/g, "");
+    signHash = signHash.replace(/['"]+/g, '');
 
     const signatureBuffer = ethjs.toBuffer(signHash);
 
     const signatureParams = ethjs.fromRpcSig(signatureBuffer);
 
-    const publicKey = ethjs.ecrecover(
-      msgHash,
-      signatureParams.v,
-      signatureParams.r,
-      signatureParams.s
-    );
+    const publicKey = ethjs.ecrecover(msgHash, signatureParams.v, signatureParams.r, signatureParams.s);
 
     const addressBuffer = ethjs.publicToAddress(publicKey);
     const signAddress = ethjs.bufferToHex(addressBuffer);
 
     //if(address != signAddress) return [false, null, null, null, null];
 
-    return [
-      true,
-      signAddress,
-      signatureParams.v,
-      signatureParams.r,
-      signatureParams.s,
-    ];
+    return [true, signAddress, signatureParams.v, signatureParams.r, signatureParams.s];
   }
 }

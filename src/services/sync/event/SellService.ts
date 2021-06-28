@@ -1,98 +1,60 @@
-import { Service, Inject } from "typedi";
-import { Sale } from "../../../entities/Sale";
-import { SellNego } from "../../../entities/SellNego";
-import { NftItemDesc } from "../../../entities/NftItemDesc";
+import { Service, Inject } from 'typedi';
+import { Sale } from '../../../entities/Sale';
+import { SellNego } from '../../../entities/SellNego';
+import { NftItemDesc } from '../../../entities/NftItemDesc';
 
-import { Not } from "typeorm";
+import { Not } from 'typeorm';
 
-@Service("SellService")
+@Service('SellService')
 export class SellService {
   eventMap;
 
   constructor(
-    @Inject("BulkService") private bulkService,
-    @Inject("AbiService") private abiService,
-    @Inject("constant") private constant,
-    @Inject("CommonService") private commonService,
-    @Inject("NodeService") private nodeService
+    @Inject('BulkService') private bulkService,
+    @Inject('AbiService') private abiService,
+    @Inject('constant') private constant,
+    @Inject('CommonService') private commonService,
+    @Inject('NodeService') private nodeService,
   ) {
-    this.eventMap = this.abiService.getEventMap("sell-abi");
+    this.eventMap = this.abiService.getEventMap('sell-abi');
   }
 
   public async handler(blockNo, topicHash, log, blockDate) {
-    const eventInfo = this.eventMap.get(topicHash) || "";
-    const decodeParams = await this.abiService.getDecodeLog(
-      eventInfo["inputs"],
-      log
-    );
+    const eventInfo = this.eventMap.get(topicHash) || '';
+    const decodeParams = await this.abiService.getDecodeLog(eventInfo['inputs'], log);
     const acceptEvent = [
-      "SellOfferAdded",
-      "SellOfferCompleted",
-      "SellOfferCanceled",
-      "SellOfferEdited",
-      "NegoAdded",
-      "NegoCanceled",
-      "NegoRejected",
+      'SellOfferAdded',
+      'SellOfferCompleted',
+      'SellOfferCanceled',
+      'SellOfferEdited',
+      'NegoAdded',
+      'NegoCanceled',
+      'NegoRejected',
     ];
 
     if (!acceptEvent.includes(eventInfo.name)) return;
 
     switch (eventInfo.name) {
-      case "SellOfferAdded":
-        return await this.sellOfferAdded(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'SellOfferAdded':
+        return await this.sellOfferAdded(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "SellOfferCompleted":
-        return await this.sellOfferCompleted(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'SellOfferCompleted':
+        return await this.sellOfferCompleted(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "SellOfferCanceled":
-        return await this.sellOfferCanceled(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'SellOfferCanceled':
+        return await this.sellOfferCanceled(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "SellOfferEdited":
-        return await this.sellOfferEdited(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'SellOfferEdited':
+        return await this.sellOfferEdited(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "NegoAdded":
-        return await this.negoAdded(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'NegoAdded':
+        return await this.negoAdded(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "NegoCanceled":
-        return await this.negoCanceled(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'NegoCanceled':
+        return await this.negoCanceled(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "NegoRejected":
-        return await this.negoRejected(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'NegoRejected':
+        return await this.negoRejected(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
     }
   }
@@ -103,18 +65,15 @@ export class SellService {
       ? this.constant.TYPE.SALE.NEGOTIABLE_SELL
       : this.constant.TYPE.SALE.DIRECT_SELL;
     const nftDesc = await NftItemDesc.findOne({
-      select: ["name"],
+      select: ['name'],
       where: { tokenAddress: params.nftAddr, tokenId: params.tokenId },
     });
-    var tokenName = nftDesc && "name" in nftDesc ? nftDesc.name : "";
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.wantedToken,
-      params.maxAmount
-    );
+    var tokenName = nftDesc && 'name' in nftDesc ? nftDesc.name : '';
+    const usdPrice = await this.commonService.convertUsdPrice(params.wantedToken, params.maxAmount);
 
     //판매글 생성
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         id: params.offerId,
         tokenAddress: params.nftAddr,
@@ -132,12 +91,12 @@ export class SellService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //판매자 판매 활동내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.SELL,
         status: this.constant.STATUS.SELL.START,
@@ -151,7 +110,7 @@ export class SellService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     return params.sellId;
@@ -159,10 +118,7 @@ export class SellService {
 
   //event SellOfferCompleted(hash, offerId, nftReceiverAddr, tokenReceiverAddr, isNegoAccepted, nftAddr, tokenId, tokenAddr, tokenAmount);
   async sellOfferCompleted(blockNo, params, txHash, blockDate) {
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.tokenAddr,
-      params.tokenAmount
-    );
+    const usdPrice = await this.commonService.convertUsdPrice(params.tokenAddr, params.tokenAmount);
     const sell = await Sale.findOne(params.offerId);
     const paidAmount = await this.nodeService.getPaidAmount(params.tokenAmount); //구매자 지불금액
 
@@ -176,7 +132,7 @@ export class SellService {
 
       //구매자 협상 끝내기
       await this.bulkService.addData(blockNo, {
-        tableName: "sell_nego",
+        tableName: 'sell_nego',
         data: {
           status: this.constant.STATUS.NEGO.DONE,
           usdPrice: usdPrice,
@@ -184,12 +140,12 @@ export class SellService {
         where: {
           id: nego.id,
         },
-        queryType: "update",
+        queryType: 'update',
       });
 
       //구매자 협상 활동내역 끝내기
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           status: this.constant.STATUS.NEGO.DONE,
           usdPrice: usdPrice,
@@ -203,12 +159,12 @@ export class SellService {
           eventType: this.constant.TYPE.EVENT.NEGO,
           status: this.constant.STATUS.NEGO.START,
         },
-        queryType: "update",
+        queryType: 'update',
       });
     } else {
       //즉시구매시 구매자 협상(거래) 내역 추가
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.BUY,
           status: this.constant.STATUS.NEGO.DONE,
@@ -225,13 +181,13 @@ export class SellService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     //판매자 판매활동 종료 처리
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.SELL.DONE,
         currency: params.tokenAddr,
@@ -247,12 +203,12 @@ export class SellService {
         eventType: this.constant.TYPE.EVENT.SELL,
         accountAddress: params.tokenReceiverAddr,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //판매자 토큰 입금 내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.TOKEN,
         status: this.constant.STATUS.TOKEN.DEPOSIT,
@@ -268,12 +224,12 @@ export class SellService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //구매자 토큰 출금 내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.TOKEN,
         status: this.constant.STATUS.TOKEN.WITHDRAW,
@@ -289,24 +245,24 @@ export class SellService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //판매 종료시 nft item 가격 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "nft_item",
+      tableName: 'nft_item',
       data: {
         currency: params.tokenAddr,
         price: paidAmount,
         usdPrice: usdPrice,
       },
       where: { tokenAddress: sell.tokenAddress, tokenId: sell.tokenId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //판매글 종료 처리
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         status: this.constant.STATUS.SALE.DONE,
         buyerAddress: params.nftReceiverAddr,
@@ -318,36 +274,34 @@ export class SellService {
         updatedAt: blockDate,
       },
       where: { id: params.offerId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //거래 금액 release 처리
     await this.bulkService.addData(blockNo, {
-      tableName: "token_balance",
+      tableName: 'token_balance',
       data: {
-        lockAuctionAmount: () => "lockSellAmount - " + paidAmount,
+        lockAuctionAmount: () => 'lockSellAmount - ' + paidAmount,
       },
       where: {
         accountAddress: params.nftReceiverAddr,
         tokenAddress: params.tokenAddr,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
-    await this.bulkService.rankInBulk(
-      this.bulkService,
-      blockNo,
-      sell.tokenAddress,
-      usdPrice,
-      ["total", "week", "tradeCnt"]
-    );
+    await this.bulkService.rankInBulk(this.bulkService, blockNo, sell.tokenAddress, usdPrice, [
+      'total',
+      'week',
+      'tradeCnt',
+    ]);
   }
 
   //event SellOfferCanceled(bytes32 hash, bytes32 offerId, address offerOwner);
   async sellOfferCanceled(blockNo, params, txHash, blockDate) {
     //판매자 판매 활동내역 취소 변경
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.SELL.CANCEL,
         txHash: txHash,
@@ -357,19 +311,19 @@ export class SellService {
         tradeId: params.offerId,
         accountAddress: params.offerOwner,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //판매글 취소
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         status: this.constant.STATUS.SELL.CANCEL,
         lastTxHash: txHash,
         updatedAt: blockDate,
       },
       where: { id: params.offerId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     return params.offerId;
@@ -382,7 +336,7 @@ export class SellService {
       : this.constant.TYPE.SALE.DIRECT_SELL;
 
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         txHash: txHash,
         updatedAt: blockDate,
@@ -391,11 +345,11 @@ export class SellService {
         tradeId: params.offerId,
         accountAddress: params.offerOwner,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         currency: params.wantedToken,
         basePrice: params.maxAmount,
@@ -405,21 +359,18 @@ export class SellService {
         updatedAt: blockDate,
       },
       where: { id: params.offerId },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   //event NegoAdded(bytes32 hash, bytes32 offerId, address negoUser, address tokenAddr, uint amount);
   async negoAdded(blockNo, params, txHash, blockDate) {
     const sell = await Sale.findOne({ id: params.offerId });
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.tokenAddr,
-      params.amount
-    );
+    const usdPrice = await this.commonService.convertUsdPrice(params.tokenAddr, params.amount);
 
     //구매자 협상 활동내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.NEGO,
         status: this.constant.STATUS.NEGO.START,
@@ -436,12 +387,12 @@ export class SellService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //협상 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "sell_nego",
+      tableName: 'sell_nego',
       data: {
         id: params.hash,
         accountAddress: params.negoUser,
@@ -453,7 +404,7 @@ export class SellService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     return params.hash;
@@ -463,7 +414,7 @@ export class SellService {
   async negoCanceled(blockNo, params, txHash, blockDate) {
     //협상 활동내역 취소
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.NEGO.CANCEL,
         txHash: txHash,
@@ -475,12 +426,12 @@ export class SellService {
         tradeId: params.offerId,
         accountAddress: params.negoUser,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //협상 취소
     await this.bulkService.addData(blockNo, {
-      tableName: "sell_nego",
+      tableName: 'sell_nego',
       data: {
         status: this.constant.STATUS.NEGO.CANCEL,
       },
@@ -489,14 +440,14 @@ export class SellService {
         sellId: params.offerId,
         accountAddress: params.negoUser,
       },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   //event NegoRejected(bytes32 hash, bytes32 offerId, address negoUser);
   async negoRejected(blockNo, params, txHash, blockDate) {
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.NEGO.REJECT,
         updatedAt: blockDate,
@@ -507,11 +458,11 @@ export class SellService {
         tradeId: params.offerId,
         accountAddress: params.negoUser,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "sell_nego",
+      tableName: 'sell_nego',
       data: {
         status: this.constant.STATUS.NEGO.REJECT,
       },
@@ -520,7 +471,7 @@ export class SellService {
         sellId: params.offerId,
         accountAddress: params.negoUser,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     return params.hash;

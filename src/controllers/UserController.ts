@@ -1,17 +1,15 @@
-import { Container } from "typedi";
-import { Logger } from "winston";
-import { KasService } from "../services/KasService";
-import { AuthService } from "../services/AuthService";
+import { Container } from 'typedi';
+import { Logger } from 'winston';
+import { KasService } from '../services/KasService';
+import { AuthService } from '../services/AuthService';
 
-const ethjs = require("ethereumjs-util");
-const contractAddress = require("../resources/" +
-  process.env.NODE_ENV +
-  "/contract-address.json");
+const ethjs = require('ethereumjs-util');
+const contractAddress = require('../resources/' + process.env.NODE_ENV + '/contract-address.json');
 
 exports.verify = async function (req, res, next) {
   try {
-    const user = "";
-    const token = "";
+    const user = '';
+    const token = '';
     //await this.authService.SignUp(req.body);
     return res.status(201).json({ user, token });
   } catch (e) {
@@ -29,12 +27,7 @@ exports.login = async function (req, res, next) {
   var signTime = req.body.signTime;
 
   try {
-    const { userRecord, token } = await authService.SignIn(
-      addr,
-      msg,
-      signHash,
-      signTime
-    );
+    const { userRecord, token } = await authService.SignIn(addr, msg, signHash, signTime);
     return res.json({ userRecord, token }).status(200);
   } catch (e) {
     return next(e);

@@ -1,36 +1,28 @@
-import { CustomLogger } from "../loaders/typeormLogger";
-import { ConnectionOptions, DatabaseType } from "typeorm";
-const postgresDatabase: DatabaseType = "mysql";
-const dotEnv = require("dotenv-flow");
-const logging: (
-  | "query"
-  | "error"
-  | "schema"
-  | "warn"
-  | "info"
-  | "log"
-  | "migration"
-)[] = ["error", "warn"];
+import { CustomLogger } from '../loaders/typeormLogger';
+import { ConnectionOptions, DatabaseType } from 'typeorm';
+const postgresDatabase: DatabaseType = 'mysql';
+const dotEnv = require('dotenv-flow');
+const logging: ('query' | 'error' | 'schema' | 'warn' | 'info' | 'log' | 'migration')[] = ['error', 'warn'];
 
 var rootDir = process.env.PWD;
 dotEnv.config();
 
-if (process.argv[0].includes("ts-node")) {
-  rootDir += "/src";
+if (process.argv[0].includes('ts-node')) {
+  rootDir += '/src';
 } else {
-  rootDir += "/dist";
+  rootDir += '/dist';
 }
 
 export default {
-  name: "default",
+  name: 'default',
   type: postgresDatabase,
-  charset: "utf8mb4_unicode_ci",
+  charset: 'utf8mb4_unicode_ci',
   host: process.env.MYSQL_HOST,
   port: Number(process.env.MYSQL_PORT),
   username: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DB,
-  logging: process.env.NODE_ENV === "local" ? true : logging,
+  logging: process.env.NODE_ENV === 'local' ? true : logging,
   logger: new CustomLogger(),
   synchronize: false,
   dropSchema: false,

@@ -1,25 +1,25 @@
-import * as redis from "redis";
-import { RedisClient } from "redis";
-import { promisify } from "util";
-import { Container, Service, Inject } from "typedi";
+import * as redis from 'redis';
+import { RedisClient } from 'redis';
+import { promisify } from 'util';
+import { Container, Service, Inject } from 'typedi';
 
-@Service("RedisService")
+@Service('RedisService')
 export class RedisService {
   private _client: RedisClient;
   private options: any;
   private _isConnected: boolean = false;
 
-  constructor(@Inject("logger") private logger) {
+  constructor(@Inject('logger') private logger) {
     this.options = this._options();
     this._client = redis.createClient(this.options);
 
-    this._client.on("error", (err) => {
-      this.logger.error("Redis server err", err);
+    this._client.on('error', (err) => {
+      this.logger.error('Redis server err', err);
     });
 
-    this._client.on("connect", () => {
+    this._client.on('connect', () => {
       this._isConnected = true;
-      this.logger.info("Connected to remote Redis server!");
+      this.logger.info('Connected to remote Redis server!');
     });
   }
 
@@ -65,13 +65,9 @@ export class RedisService {
    * @param value
    * @param expireTime key is valid for expireTime seconds
    */
-  public async set(
-    key: string,
-    value: any,
-    expireTime: number = 0
-  ): Promise<any> {
+  public async set(key: string, value: any, expireTime: number = 0): Promise<any> {
     if (!this._isConnected) {
-      return Promise.reject(new Error("redis disconnected"));
+      return Promise.reject(new Error('redis disconnected'));
     }
 
     if (expireTime > 0) {
@@ -127,11 +123,7 @@ export class RedisService {
    * @param value
    * @param expireTime key is valid for expireTime seconds
    */
-  public async sadd(
-    key: string,
-    value: any,
-    expireTime: number = 0
-  ): Promise<any> {
+  public async sadd(key: string, value: any, expireTime: number = 0): Promise<any> {
     if (!this._isConnected) {
       return undefined;
     }
@@ -226,7 +218,7 @@ export class RedisService {
    * @param keys
    */
   public async mset(keys: string[]): Promise<any> {
-    throw new Error("not implemented yet");
+    throw new Error('not implemented yet');
   }
 
   /**
@@ -249,12 +241,12 @@ export class RedisService {
 
   private _retryStrategy(ret: any): any {
     this._isConnected = false;
-    if (ret.error && ret.error.code === "ECONNREFUSED") {
-      console.error("The redis server refused the connection");
-    } else if (ret.error && ret.error.code === "ENOTFOUND") {
-      console.error("The redis URL is not accessible");
+    if (ret.error && ret.error.code === 'ECONNREFUSED') {
+      console.error('The redis server refused the connection');
+    } else if (ret.error && ret.error.code === 'ENOTFOUND') {
+      console.error('The redis URL is not accessible');
     } else if (ret.error && ret.error.code) {
-      console.error("The redis has error : " + ret.error.message);
+      console.error('The redis has error : ' + ret.error.message);
     }
     return this.options.retry_window;
   }

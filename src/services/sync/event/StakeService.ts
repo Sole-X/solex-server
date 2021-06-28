@@ -1,77 +1,43 @@
-import { Service, Inject } from "typedi";
+import { Service, Inject } from 'typedi';
 
-@Service("StakeService")
+@Service('StakeService')
 export class StakeService {
   eventMap;
 
   constructor(
-    @Inject("logger") private logger,
-    @Inject("BulkService") private bulkService,
-    @Inject("AbiService") private abiService,
-    @Inject("constant") private constant,
-    @Inject("currency") private currency,
-    @Inject("NftService") private nftService,
-    @Inject("contractAddress") private contractAddress
+    @Inject('logger') private logger,
+    @Inject('BulkService') private bulkService,
+    @Inject('AbiService') private abiService,
+    @Inject('constant') private constant,
+    @Inject('currency') private currency,
+    @Inject('NftService') private nftService,
+    @Inject('contractAddress') private contractAddress,
   ) {
-    this.eventMap = this.abiService.getEventMap("stake-abi");
+    this.eventMap = this.abiService.getEventMap('stake-abi');
   }
 
   public async handler(blockNo, topicHash, log, blockDate) {
-    const eventInfo = this.eventMap.get(topicHash) || "";
+    const eventInfo = this.eventMap.get(topicHash) || '';
 
-    const decodeParams = await this.abiService.getDecodeLog(
-      eventInfo["inputs"],
-      log
-    );
-    const acceptEvent = [
-      "Staking",
-      "Unstaking",
-      "ClaimUnstaking",
-      "ClaimReward",
-      "UpdateRewardInfo",
-    ];
+    const decodeParams = await this.abiService.getDecodeLog(eventInfo['inputs'], log);
+    const acceptEvent = ['Staking', 'Unstaking', 'ClaimUnstaking', 'ClaimReward', 'UpdateRewardInfo'];
     if (!acceptEvent.includes(eventInfo.name)) return;
 
     switch (eventInfo.name) {
-      case "Staking":
-        return await this.staking(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'Staking':
+        return await this.staking(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "Unstaking":
-        return await this.unstaking(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'Unstaking':
+        return await this.unstaking(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "ClaimUnstaking":
-        return await this.claimUnstaking(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'ClaimUnstaking':
+        return await this.claimUnstaking(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "ClaimReward":
-        return await this.claimReward(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'ClaimReward':
+        return await this.claimReward(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "UpdateRewardInfo":
-        return await this.updateRewardInfo(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'UpdateRewardInfo':
+        return await this.updateRewardInfo(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
     }
   }
@@ -79,20 +45,20 @@ export class StakeService {
   //event Staking(bytes32 hash, address user, uint256 amount, uint256 totalStake, uint256 userStake);
   async staking(blockNo, params, txHash, blockDate) {
     await this.bulkService.addData(blockNo, {
-      tableName: "stake",
+      tableName: 'stake',
       data: {
         accountAddress: params.user,
         amount: params.userStake,
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "upsert",
-      conflict_target: ["accountAddress"],
-      overwrite: ["amount", "createdAt", "updatedAt"],
+      queryType: 'upsert',
+      conflict_target: ['accountAddress'],
+      overwrite: ['amount', 'createdAt', 'updatedAt'],
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "stake_activity",
+      tableName: 'stake_activity',
       data: {
         accountAddress: params.user,
         currency: this.contractAddress.TRIX,
@@ -101,18 +67,18 @@ export class StakeService {
         type: this.constant.TYPE.STAKE.STAKING,
         createdAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "variable",
+      tableName: 'variable',
       data: {
         value: params.totalStake,
       },
       where: {
-        key: "totalStaking",
+        key: 'totalStaking',
       },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
@@ -121,21 +87,21 @@ export class StakeService {
     var due = new Date(params.due * 1000);
 
     await this.bulkService.addData(blockNo, {
-      tableName: "stake",
+      tableName: 'stake',
       data: {
         accountAddress: params.user,
         amount: params.userStake,
-        unstakingAmount: () => "unstakingAmount + " + params.amount,
+        unstakingAmount: () => 'unstakingAmount + ' + params.amount,
         updatedAt: blockDate,
       },
       where: {
         accountAddress: params.user,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "stake_activity",
+      tableName: 'stake_activity',
       data: {
         accountAddress: params.user,
         currency: this.contractAddress.TRIX,
@@ -147,49 +113,49 @@ export class StakeService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "variable",
+      tableName: 'variable',
       data: {
         value: params.totalStake,
       },
       where: {
-        key: "totalStaking",
+        key: 'totalStaking',
       },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   //event ClaimUnstaking(bytes32 hash, address user, uint256 amount);
   async claimUnstaking(blockNo, params, txHash, blockDate) {
     await this.bulkService.addData(blockNo, {
-      tableName: "stake",
+      tableName: 'stake',
       data: {
         accountAddress: params.user,
-        unstakingAmount: () => "unstakingAmount - " + params.amount,
+        unstakingAmount: () => 'unstakingAmount - ' + params.amount,
         updatedAt: blockDate,
       },
       where: {
         accountAddress: params.user,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "variable",
+      tableName: 'variable',
       data: {
-        value: () => "value - " + params.amount,
+        value: () => 'value - ' + params.amount,
       },
       where: {
-        key: "totalStaking",
+        key: 'totalStaking',
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "stake_activity",
+      tableName: 'stake_activity',
       data: {
         amount: params.amount,
         txHash: txHash,
@@ -200,14 +166,14 @@ export class StakeService {
         accountAddress: params.user,
         index: params.uid,
       },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   //event ClaimReward(address user, address token, uint256 totalReward, uint256 amount, uint index));
   async claimReward(blockNo, params, txHash, blockDate) {
     await this.bulkService.addData(blockNo, {
-      tableName: "stake_reward",
+      tableName: 'stake_reward',
       data: {
         accountAddress: params.user,
         currency: params.token,
@@ -216,19 +182,13 @@ export class StakeService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "upsert",
-      conflict_target: ["accountAddress", "currency"],
-      overwrite: [
-        "amount",
-        "totalReward",
-        "createdAt",
-        "updatedAt",
-        "userIndex",
-      ],
+      queryType: 'upsert',
+      conflict_target: ['accountAddress', 'currency'],
+      overwrite: ['amount', 'totalReward', 'createdAt', 'updatedAt', 'userIndex'],
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "stake_activity",
+      tableName: 'stake_activity',
       data: {
         accountAddress: params.user,
         currency: params.token,
@@ -238,24 +198,24 @@ export class StakeService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "variable",
+      tableName: 'variable',
       data: {
-        value: () => "value + " + params.amount,
+        value: () => 'value + ' + params.amount,
       },
       where: {
-        key: "totalReward",
+        key: 'totalReward',
       },
-      queryType: "update",
+      queryType: 'update',
     });
   }
   //event UpdateRewardInfo(address token, uint index, uint accRewards, uint newIndex, uint newReward);
   async updateRewardInfo(blockNo, params, txHash, blockDate) {
     await this.bulkService.addData(blockNo, {
-      tableName: "token_info",
+      tableName: 'token_info',
       data: {
         stakeIndex: params.index,
         stakeAccReward: params.accRewards,
@@ -263,7 +223,7 @@ export class StakeService {
       where: {
         tokenAddress: params.token,
       },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 }

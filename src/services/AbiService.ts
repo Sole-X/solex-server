@@ -1,8 +1,8 @@
-import { Service, Inject } from "typedi";
-const abiCoder = require("web3-eth-abi");
-const fs = require("fs");
+import { Service, Inject } from 'typedi';
+const abiCoder = require('web3-eth-abi');
+const fs = require('fs');
 
-@Service("AbiService")
+@Service('AbiService')
 export class AbiService {
   private abiMap: Map<string, []> = new Map();
   private eventMap: Map<string, any> = new Map();
@@ -13,21 +13,18 @@ export class AbiService {
   private objCache;
   private abis: object[] = [];
 
-  constructor(
-    @Inject("logger") private logger,
-    @Inject("contractAddress") private contractAddress
-  ) {
-    this.addr = "";
+  constructor(@Inject('logger') private logger, @Inject('contractAddress') private contractAddress) {
+    this.addr = '';
     this.objCache = new Map();
     this.load();
   }
 
   load() {
-    fs.readdirSync("./src/resources/abi").forEach((file) => {
-      if (file.indexOf("abi") > -1) {
-        const abiFile = require("../resources/abi/" + file);
+    fs.readdirSync('./src/resources/abi').forEach((file) => {
+      if (file.indexOf('abi') > -1) {
+        const abiFile = require('../resources/abi/' + file);
 
-        this.abiMap.set(file.split(".")[0], abiFile);
+        this.abiMap.set(file.split('.')[0], abiFile);
         this.abis.push(abiFile);
       }
     });
@@ -44,10 +41,10 @@ export class AbiService {
       for (let i = 0; i < Object.keys(abi).length; i++) {
         let item = abi[i];
         if (!item.type) continue;
-        if (item.type.toLowerCase() == "event") {
+        if (item.type.toLowerCase() == 'event') {
           var signaturehash = abiCoder.encodeEventSignature(item);
           events.set(signaturehash.toLowerCase(), item);
-        } else if (item.type.toLowerCase() == "function") {
+        } else if (item.type.toLowerCase() == 'function') {
           var signaturehash = abiCoder.encodeFunctionSignature(item);
           functions.set(signaturehash.toLowerCase(), item);
           functionsName.set(item.name, item);
@@ -73,7 +70,7 @@ export class AbiService {
   }
 
   getDecodeLog(funcInputs, log) {
-    if (!funcInputs) return "";
+    if (!funcInputs) return '';
     return abiCoder.decodeLog(funcInputs, log.data, log.topics);
   }
 
@@ -103,13 +100,13 @@ export class AbiService {
     if (!address) return false;
 
     const tradeAddrArr = [
-      this.contractAddress["AuctionContract"],
-      this.contractAddress["ReserveContract"],
-      this.contractAddress["ExecutorContract"],
-      this.contractAddress["SellOfferContract"],
-      this.contractAddress["BuyOfferContract"],
-      this.contractAddress["StakeContract"],
-      this.contractAddress["KlayMintContract"],
+      this.contractAddress['AuctionContract'],
+      this.contractAddress['ReserveContract'],
+      this.contractAddress['ExecutorContract'],
+      this.contractAddress['SellOfferContract'],
+      this.contractAddress['BuyOfferContract'],
+      this.contractAddress['StakeContract'],
+      this.contractAddress['KlayMintContract'],
     ];
 
     if (tradeAddrArr.indexOf(address.toLowerCase()) > -1) return true;
@@ -119,14 +116,14 @@ export class AbiService {
 
   getTradeType(address) {
     address = address.toLowerCase();
-    if (address == this.contractAddress["AuctionContract"]) {
-      return "AUCTION";
-    } else if (address == this.contractAddress["SellOfferContract"]) {
-      return "SELL";
-    } else if (address == this.contractAddress["BuyOfferContract"]) {
-      return "BUY";
-    } else if (address == this.contractAddress["StakeContract"]) {
-      return "STAKE";
+    if (address == this.contractAddress['AuctionContract']) {
+      return 'AUCTION';
+    } else if (address == this.contractAddress['SellOfferContract']) {
+      return 'SELL';
+    } else if (address == this.contractAddress['BuyOfferContract']) {
+      return 'BUY';
+    } else if (address == this.contractAddress['StakeContract']) {
+      return 'STAKE';
     }
   }
 }

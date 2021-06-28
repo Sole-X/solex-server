@@ -1,4 +1,4 @@
-import jwt from "express-jwt";
+import jwt from 'express-jwt';
 
 /**
  * We are assuming that the JWT will come in a header with the form
@@ -15,12 +15,10 @@ const getTokenFromHeader = (req) => {
    * So I believe that this should handle more 'edge' cases ;)
    */
   if (
-    (req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Token") ||
-    (req.headers.authorization &&
-      req.headers.authorization.split(" ")[0] === "Bearer")
+    (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token') ||
+    (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer')
   ) {
-    return req.headers.authorization.split(" ")[1];
+    return req.headers.authorization.split(' ')[1];
   }
   return null;
 };
@@ -29,7 +27,7 @@ const isAuth = () => {
   return jwt({
     secret: process.env.JWT_SECRET, // The _secret_ to sign the JWTs
     algorithms: [process.env.JWT_ALGO], // JWT Algorithm
-    userProperty: "token", // Use req.token to store the JWT
+    userProperty: 'token', // Use req.token to store the JWT
     getToken: getTokenFromHeader, // How to extract the JWT from the request
   });
 };

@@ -1,32 +1,32 @@
-import { Column, Entity, PrimaryGeneratedColumn, In } from "typeorm";
-import { ParentEntity } from "./ParentEntity";
+import { Column, Entity, PrimaryGeneratedColumn, In } from 'typeorm';
+import { ParentEntity } from './ParentEntity';
 
-@Entity("category")
+@Entity('category')
 export class Category extends ParentEntity {
-  @Column("varchar", {
+  @Column('varchar', {
     primary: true,
-    name: "tokenAddress",
+    name: 'tokenAddress',
     length: 100,
     default: () => "''",
   })
   tokenAddress: string;
 
-  @Column("varchar", {
+  @Column('varchar', {
     primary: true,
-    name: "category",
+    name: 'category',
     length: 45,
     default: () => "''",
   })
   category: string;
 
-  @Column("tinyint", { name: "type", unsigned: true, default: () => "'1'" })
+  @Column('tinyint', { name: 'type', unsigned: true, default: () => "'1'" })
   type: number;
 
   static async getTokenAddrs(categories) {
     var result = [];
-    var cateArr = categories.split(",");
+    var cateArr = categories.split(',');
     const results = await this.createQueryBuilder()
-      .select(["tokenAddress", "category"])
+      .select(['tokenAddress', 'category'])
       .distinct(true)
       .where({ category: In(cateArr) })
       .getRawMany();

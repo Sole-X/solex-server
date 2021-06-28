@@ -1,9 +1,9 @@
-import { Container } from "typedi";
+import { Container } from 'typedi';
 
-import { Category } from "../entities/Category";
-import { NftInfo } from "../entities/NftInfo";
-import { NftItem } from "../entities/NftItem";
-import { getRepository, In } from "typeorm";
+import { Category } from '../entities/Category';
+import { NftInfo } from '../entities/NftInfo';
+import { NftItem } from '../entities/NftItem';
+import { getRepository, In } from 'typeorm';
 
 exports.setCategory = async function (req, res, next) {
   const nftAddr = req.body.nftAddr;
@@ -11,7 +11,7 @@ exports.setCategory = async function (req, res, next) {
   var cateArr: any = [];
 
   try {
-    if (cate) cateArr = cate.split(",");
+    if (cate) cateArr = cate.split(',');
 
     await Category.delete({ tokenAddress: nftAddr });
 
@@ -19,14 +19,14 @@ exports.setCategory = async function (req, res, next) {
       await Category.insert({ tokenAddress: nftAddr, category: cateArr[i] });
     }
 
-    return res.status(200).json({ msg: "OK" });
+    return res.status(200).json({ msg: 'OK' });
   } catch (e) {
     return next(e);
   }
 };
 
 exports.setCollection = async function (req, res, next) {
-  const nodeService: any = Container.get("NodeService");
+  const nodeService: any = Container.get('NodeService');
 
   const tokenAddr = req.body.tokenAddr;
   const platform = req.body.platform;
@@ -36,10 +36,7 @@ exports.setCollection = async function (req, res, next) {
   const desc = req.body.desc;
   const link = req.body.link;
 
-  const [name, symbol, decimal] = await nodeService.getTokenInfo(
-    tokenAddr,
-    true
-  );
+  const [name, symbol, decimal] = await nodeService.getTokenInfo(tokenAddr, true);
 
   try {
     const result = await NftInfo.insertIfNotExist({
@@ -61,7 +58,7 @@ exports.setCollection = async function (req, res, next) {
 };
 
 exports.makeKasAccount = async function (req, res, next) {
-  const kasService: any = Container.get("KasService");
+  const kasService: any = Container.get('KasService');
   const chainId = req.query.chainId;
 
   try {
@@ -80,17 +77,17 @@ exports.addPublisher = async function (req, res, next) {
 
   try {
     const result = await getRepository(NftItem).update(
-      { tokenAddress: tokenAddr, tokenId: In(tokenIds.split(",")) },
-      { publisher: publisher }
+      { tokenAddress: tokenAddr, tokenId: In(tokenIds.split(',')) },
+      { publisher: publisher },
     );
     return res.status(200).json(result);
   } catch (e) {
-    return res.status(400).json({ msg: "FAIL:" + e.message });
+    return res.status(400).json({ msg: 'FAIL:' + e.message });
   }
 };
 
 exports.banNft = async function (req, res, next) {
-  const nodeService = Container.get("NodeService");
+  const nodeService = Container.get('NodeService');
 
   const tokenAddr = req.body.tokenAddr;
   const platform = req.body.platform;
@@ -101,6 +98,6 @@ exports.banNft = async function (req, res, next) {
     const result = {};
     return res.status(200).json(result);
   } catch (e) {
-    return res.status(400).json({ msg: "FAIL:" + e.message });
+    return res.status(400).json({ msg: 'FAIL:' + e.message });
   }
 };

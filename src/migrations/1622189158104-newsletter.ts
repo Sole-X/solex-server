@@ -1,60 +1,57 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from "typeorm";
-import { Newsletter } from "../entities/Newsletter";
-import { MailLog } from "../entities/MailLog";
-import { MailTemplate } from "../entities/MailTemplate";
+import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import { Newsletter } from '../entities/Newsletter';
+import { MailLog } from '../entities/MailLog';
+import { MailTemplate } from '../entities/MailTemplate';
 
 export class newsletter1622189158104 implements MigrationInterface {
-  name = "newsletter1622189158104";
+  name = 'newsletter1622189158104';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    let newsletterTbl = queryRunner.connection.getRepository(Newsletter)
-      .metadata.tableName;
-    let mailLogTbl = queryRunner.connection.getRepository(MailLog).metadata
-      .tableName;
-    let mailTemplateTbl = queryRunner.connection.getRepository(MailTemplate)
-      .metadata.tableName;
+    let newsletterTbl = queryRunner.connection.getRepository(Newsletter).metadata.tableName;
+    let mailLogTbl = queryRunner.connection.getRepository(MailLog).metadata.tableName;
+    let mailTemplateTbl = queryRunner.connection.getRepository(MailTemplate).metadata.tableName;
 
     await queryRunner.createTable(
       new Table({
         name: newsletterTbl,
         columns: [
           {
-            name: "id",
-            type: "bigint",
+            name: 'id',
+            type: 'bigint',
             isPrimary: true,
             isGenerated: true,
-            generationStrategy: "increment",
+            generationStrategy: 'increment',
           },
           {
-            name: "email",
-            type: "varchar(150)",
+            name: 'email',
+            type: 'varchar(150)',
             isNullable: false,
             default: "''",
           },
           {
-            name: "status",
-            type: "tinyint",
+            name: 'status',
+            type: 'tinyint',
             unsigned: true,
             isNullable: false,
             default: 1,
           },
           {
-            name: "createdAt",
-            type: "datetime",
+            name: 'createdAt',
+            type: 'datetime',
             isNullable: false,
-            default: "CURRENT_TIMESTAMP",
+            default: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
-      true
+      true,
     );
 
     await queryRunner.createIndex(
       newsletterTbl,
       new TableIndex({
-        name: "idx_email",
-        columnNames: ["email"],
-      })
+        name: 'idx_email',
+        columnNames: ['email'],
+      }),
     );
 
     await queryRunner.createTable(
@@ -62,40 +59,40 @@ export class newsletter1622189158104 implements MigrationInterface {
         name: mailLogTbl,
         columns: [
           {
-            name: "id",
-            type: "int",
+            name: 'id',
+            type: 'int',
             isPrimary: true,
             isGenerated: true,
-            generationStrategy: "increment",
+            generationStrategy: 'increment',
           },
           {
-            name: "templateId",
-            type: "int",
+            name: 'templateId',
+            type: 'int',
             unsigned: true,
           },
           {
-            name: "email",
-            type: "varchar(150)",
+            name: 'email',
+            type: 'varchar(150)',
             isNullable: false,
             default: "''",
           },
           {
-            name: "createdAt",
-            type: "datetime",
+            name: 'createdAt',
+            type: 'datetime',
             isNullable: false,
-            default: "CURRENT_TIMESTAMP",
+            default: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
-      true
+      true,
     );
 
     await queryRunner.createIndex(
       mailLogTbl,
       new TableIndex({
-        name: "idx_email",
-        columnNames: ["email"],
-      })
+        name: 'idx_email',
+        columnNames: ['email'],
+      }),
     );
 
     await queryRunner.createTable(
@@ -103,38 +100,35 @@ export class newsletter1622189158104 implements MigrationInterface {
         name: mailTemplateTbl,
         columns: [
           {
-            name: "id",
-            type: "int",
+            name: 'id',
+            type: 'int',
             isPrimary: true,
             isGenerated: true,
-            generationStrategy: "increment",
+            generationStrategy: 'increment',
           },
           {
-            name: "subject",
-            type: "varchar(150)",
+            name: 'subject',
+            type: 'varchar(150)',
             isNullable: false,
             default: "''",
           },
           {
-            name: "template",
-            type: "text",
+            name: 'template',
+            type: 'text',
           },
         ],
       }),
-      true
+      true,
     );
     await queryRunner.query(
-      `INSERT INTO ${mailTemplateTbl}(\`subject\`,\`template\`) VALUES ('test','{param0}님 안녕하세요')  `
+      `INSERT INTO ${mailTemplateTbl}(\`subject\`,\`template\`) VALUES ('test','{param0}님 안녕하세요')  `,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    let newsletterTbl = queryRunner.connection.getRepository(Newsletter)
-      .metadata.tableName;
-    let mailLogTbl = queryRunner.connection.getRepository(MailLog).metadata
-      .tableName;
-    let mailTemplateTbl = queryRunner.connection.getRepository(MailTemplate)
-      .metadata.tableName;
+    let newsletterTbl = queryRunner.connection.getRepository(Newsletter).metadata.tableName;
+    let mailLogTbl = queryRunner.connection.getRepository(MailLog).metadata.tableName;
+    let mailTemplateTbl = queryRunner.connection.getRepository(MailTemplate).metadata.tableName;
 
     await queryRunner.dropTable(newsletterTbl);
     await queryRunner.dropTable(mailLogTbl);

@@ -1,70 +1,42 @@
-import { Service, Inject } from "typedi";
-import { Buy } from "../../../entities/Buy";
-import { NftItemDesc } from "../../../entities/NftItemDesc";
-import { NftItem } from "../../../entities/NftItem";
+import { Service, Inject } from 'typedi';
+import { Buy } from '../../../entities/Buy';
+import { NftItemDesc } from '../../../entities/NftItemDesc';
+import { NftItem } from '../../../entities/NftItem';
 
-@Service("BuyService")
+@Service('BuyService')
 export class BuyService {
   eventMap;
 
   constructor(
-    @Inject("logger") private logger,
-    @Inject("BulkService") private bulkService,
-    @Inject("AbiService") private abiService,
-    @Inject("constant") private constant,
-    @Inject("currency") private currency,
-    @Inject("NodeService") private nodeService,
-    @Inject("CommonService") private commonService
+    @Inject('logger') private logger,
+    @Inject('BulkService') private bulkService,
+    @Inject('AbiService') private abiService,
+    @Inject('constant') private constant,
+    @Inject('currency') private currency,
+    @Inject('NodeService') private nodeService,
+    @Inject('CommonService') private commonService,
   ) {
-    this.eventMap = this.abiService.getEventMap("buy-abi");
+    this.eventMap = this.abiService.getEventMap('buy-abi');
   }
 
   public async handler(blockNo, topicHash, log, blockDate) {
-    const eventInfo = this.eventMap.get(topicHash) || "";
-    const decodeParams = await this.abiService.getDecodeLog(
-      eventInfo["inputs"],
-      log
-    );
-    const acceptEvent = [
-      "BuyOfferAdded",
-      "BuyOfferCompleted",
-      "BuyOfferCanceled",
-      "BuyOfferEdited",
-    ];
+    const eventInfo = this.eventMap.get(topicHash) || '';
+    const decodeParams = await this.abiService.getDecodeLog(eventInfo['inputs'], log);
+    const acceptEvent = ['BuyOfferAdded', 'BuyOfferCompleted', 'BuyOfferCanceled', 'BuyOfferEdited'];
     if (!acceptEvent.includes(eventInfo.name)) return;
 
     switch (eventInfo.name) {
-      case "BuyOfferAdded":
-        return await this.buyOfferAdded(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'BuyOfferAdded':
+        return await this.buyOfferAdded(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "BuyOfferCompleted":
-        return await this.buyOfferCompleted(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'BuyOfferCompleted':
+        return await this.buyOfferCompleted(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "BuyOfferCanceled":
-        return await this.buyOfferCanceled(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'BuyOfferCanceled':
+        return await this.buyOfferCanceled(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "BuyOfferEdited":
-        return await this.buyOfferEdited(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'BuyOfferEdited':
+        return await this.buyOfferEdited(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
     }
   }
@@ -73,23 +45,20 @@ export class BuyService {
   async buyOfferAdded(blockNo, params, txHash, blockDate) {
     const startTime = new Date(params.startTime * 1000);
     const nftItem = await NftItem.findOne({
-      select: ["tokenAddress", "tokenId"],
+      select: ['tokenAddress', 'tokenId'],
       where: { tokenAddress: params.nftAddr, tokenId: params.tokenId },
     });
     const nftDesc = await NftItemDesc.findOne({
-      select: ["name"],
+      select: ['name'],
       where: { tokenAddress: params.nftAddr, tokenId: params.tokenId },
     });
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.offeredToken,
-      params.amount
-    );
-    const tokenName = nftDesc && "name" in nftDesc ? nftDesc.name : "";
+    const usdPrice = await this.commonService.convertUsdPrice(params.offeredToken, params.amount);
+    const tokenName = nftDesc && 'name' in nftDesc ? nftDesc.name : '';
 
     //buy 글 작성시 아이템 없으면 추가
     if (!nftItem) {
       await this.bulkService.addData(blockNo, {
-        tableName: "nft_item",
+        tableName: 'nft_item',
         data: {
           tokenAddress: params.nftAddr,
           tokenId: params.tokenId,
@@ -97,23 +66,23 @@ export class BuyService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "upsert",
-        conflict_target: ["tokenAddress", "tokenId"],
-        overwrite: ["createdAt", "updatedAt", "status"],
+        queryType: 'upsert',
+        conflict_target: ['tokenAddress', 'tokenId'],
+        overwrite: ['createdAt', 'updatedAt', 'status'],
       });
 
       await this.bulkService.addData(blockNo, {
-        tableName: "nft_queue",
+        tableName: 'nft_queue',
         data: {
           tokenAddress: params.nftAddr,
           tokenId: params.tokenId,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     await this.bulkService.addData(blockNo, {
-      tableName: "buy",
+      tableName: 'buy',
       data: {
         id: params.offerId,
         tokenAddress: params.nftAddr,
@@ -129,11 +98,11 @@ export class BuyService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.BUY,
         status: this.constant.STATUS.BUY.START,
@@ -147,7 +116,7 @@ export class BuyService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     return params.offerId;
@@ -156,23 +125,18 @@ export class BuyService {
   //event BuyOfferCompleted(bytes32 hash, bytes32 offerId, address nftReceiverAddr, address tokenReceiverAddr);
   async buyOfferCompleted(blockNo, params, txHash, blockDate) {
     const buy = await Buy.findOne(params.offerId);
-    const usdPrice = await this.commonService.convertUsdPrice(
-      buy.currency,
-      buy.basePrice
-    );
+    const usdPrice = await this.commonService.convertUsdPrice(buy.currency, buy.basePrice);
     const endTime = new Date(params.endTime * 1000);
     const fee = await this.nodeService.getFee(buy.basePrice); //구매자 지불금액
 
-    await this.bulkService.rankInBulk(
-      this.bulkService,
-      blockNo,
-      buy.tokenAddress,
-      usdPrice,
-      ["total", "week", "tradeCnt"]
-    );
+    await this.bulkService.rankInBulk(this.bulkService, blockNo, buy.tokenAddress, usdPrice, [
+      'total',
+      'week',
+      'tradeCnt',
+    ]);
 
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.BUY,
         status: this.constant.STATUS.BUY.DONE,
@@ -184,12 +148,12 @@ export class BuyService {
         tradeId: params.offerId,
         eventType: this.constant.TYPE.EVENT.BUY,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //판매자 판매 활동내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.SELL,
         status: this.constant.STATUS.SELL.DONE,
@@ -203,12 +167,12 @@ export class BuyService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //구매자 토큰 입금 내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.TOKEN,
         status: this.constant.STATUS.TOKEN.DEPOSIT,
@@ -224,12 +188,12 @@ export class BuyService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //구매자 토큰 출금 내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.TOKEN,
         status: this.constant.STATUS.TOKEN.WITHDRAW,
@@ -245,11 +209,11 @@ export class BuyService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "nft_item",
+      tableName: 'nft_item',
       data: {
         ownerAddress: params.nftReceiverAddr,
         tradeId: params.offerId,
@@ -258,11 +222,11 @@ export class BuyService {
         usdPrice: usdPrice,
       },
       where: { tokenAddress: buy.tokenAddress, tokenId: buy.tokenId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "buy",
+      tableName: 'buy',
       data: {
         endTime: endTime,
         lastTxHash: txHash,
@@ -273,32 +237,32 @@ export class BuyService {
         updatedAt: blockDate,
       },
       where: { id: params.offerId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //보유량 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "token_balance",
+      tableName: 'token_balance',
       data: {
-        lockBuyAmount: () => "lockBuyAmount -" + buy.basePrice,
+        lockBuyAmount: () => 'lockBuyAmount -' + buy.basePrice,
       },
       where: {
         accountAddress: params.nftReceiverAddr,
         tokenAddress: buy.currency,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //경매 종료시 nft item 가격 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "nft_item",
+      tableName: 'nft_item',
       data: {
         currency: buy.currency,
         price: buy.basePrice,
         usdPrice: usdPrice,
       },
       where: { tokenAddress: buy.tokenAddress, tokenId: buy.tokenId },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
@@ -307,7 +271,7 @@ export class BuyService {
     const buy = await Buy.findOne(params.offerId);
 
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.BUY.CANCEL,
         updatedAt: blockDate,
@@ -316,28 +280,28 @@ export class BuyService {
       where: {
         tradeId: params.offerId,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //보유량 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "token_balance",
+      tableName: 'token_balance',
       data: {
-        lockBuyAmount: () => "lockBuyAmount -" + buy.basePrice,
+        lockBuyAmount: () => 'lockBuyAmount -' + buy.basePrice,
       },
       where: { accountAddress: buy.buyerAddress, tokenAddress: buy.currency },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "buy",
+      tableName: 'buy',
       data: {
         status: this.constant.STATUS.BUY.CANCEL,
         updatedAt: blockDate,
         lastTxHash: txHash,
       },
       where: { id: params.offerId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     return params.offerId;
@@ -346,7 +310,7 @@ export class BuyService {
   //event BuyOfferEdited(bytes32 hash, bytes32 offerId, address offerOwner, address offeredToken, uint amount);
   async buyOfferEdited(blockNo, params, txHash, blockDate) {
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.BUY.EDIT,
         currency: params.offeredToken,
@@ -357,11 +321,11 @@ export class BuyService {
       where: {
         tradeId: params.offerId,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "buy",
+      tableName: 'buy',
       data: {
         currency: params.offeredToken,
         basePrice: params.amount,
@@ -369,7 +333,7 @@ export class BuyService {
         lastTxHash: txHash,
       },
       where: { id: params.offerId },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 }

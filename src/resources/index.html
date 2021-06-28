@@ -5,57 +5,49 @@
     <script src="https://unpkg.com/web3@latest/dist/web3.min.js"></script>
     <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
     <script>
-      var actionHash = "";
-      var txHash = "";
-      var url = "http://localhost:8080";
-      url = "http://solex.ozys.net";
+      var actionHash = '';
+      var txHash = '';
+      var url = 'http://localhost:8080';
+      url = 'http://solex.ozys.net';
 
-      var version = "/v1";
+      var version = '/v1';
       var requestUrl = url + version;
 
-      const socket = io.connect(url, { path: "/socket.io" });
+      const socket = io.connect(url, { path: '/socket.io' });
 
-      socket.on("pending", (socket) => {
+      socket.on('pending', (socket) => {
         if (actionHash == socket.hash) {
           txHash = socket.tx;
-          $("#txStatus").append(
-            "<tr>" +
-              "<td>" +
-              socket.hash +
-              "</td>" +
-              "<td>" +
-              socket.tx +
-              "</td>" +
-              "<td>pending</td>" +
-              "</tr>"
+          $('#txStatus').append(
+            '<tr>' + '<td>' + socket.hash + '</td>' + '<td>' + socket.tx + '</td>' + '<td>pending</td>' + '</tr>',
           );
         }
       });
-      socket.on("resultTx", (socket) => {
-        console.log("resultTx", txHash, socket);
+      socket.on('resultTx', (socket) => {
+        console.log('resultTx', txHash, socket);
         if (txHash == socket.tx) {
-          $("#txStatus").append(
-            "<tr>" +
-              "<td>" +
+          $('#txStatus').append(
+            '<tr>' +
+              '<td>' +
               socket.hash +
-              "</td>" +
-              "<td>" +
+              '</td>' +
+              '<td>' +
               socket.tx +
-              "</td>" +
-              "<td>" +
+              '</td>' +
+              '<td>' +
               socket.result +
-              "</td>" +
-              "</tr>"
+              '</td>' +
+              '</tr>',
           );
         }
       });
       function copyToClipboard(val) {
-        alert("copied to clipboard " + val);
-        var t = document.createElement("textarea");
+        alert('copied to clipboard ' + val);
+        var t = document.createElement('textarea');
         document.body.appendChild(t);
         t.value = val;
         t.select();
-        document.execCommand("copy");
+        document.execCommand('copy');
         document.body.removeChild(t);
       }
     </script>
@@ -63,7 +55,7 @@
       jQuery.fn.serializeObject = function () {
         var obj = null;
         try {
-          if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+          if (this[0].tagName && this[0].tagName.toUpperCase() == 'FORM') {
             var arr = this.serializeArray();
             if (arr) {
               obj = {};
@@ -81,7 +73,7 @@
       jQuery.fn.serializeArray2 = function () {
         var obj = null;
         try {
-          if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+          if (this[0].tagName && this[0].tagName.toUpperCase() == 'FORM') {
             var arr = this.serializeArray();
             if (arr) {
               obj = [];
@@ -97,41 +89,33 @@
         return obj;
       };
       Date.prototype.format = function (f) {
-        if (!this.valueOf()) return " ";
+        if (!this.valueOf()) return ' ';
 
-        var weekName = [
-          "일요일",
-          "월요일",
-          "화요일",
-          "수요일",
-          "목요일",
-          "금요일",
-          "토요일",
-        ];
+        var weekName = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
         var d = this;
 
         return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function ($1) {
           switch ($1) {
-            case "yyyy":
+            case 'yyyy':
               return d.getFullYear();
-            case "yy":
+            case 'yy':
               return (d.getFullYear() % 1000).zf(2);
-            case "MM":
+            case 'MM':
               return (d.getMonth() + 1).zf(2);
-            case "dd":
+            case 'dd':
               return d.getDate().zf(2);
-            case "E":
+            case 'E':
               return weekName[d.getDay()];
-            case "HH":
+            case 'HH':
               return d.getHours().zf(2);
-            case "hh":
+            case 'hh':
               return ((h = d.getHours() % 12) ? h : 12).zf(2);
-            case "mm":
+            case 'mm':
               return d.getMinutes().zf(2);
-            case "ss":
+            case 'ss':
               return d.getSeconds().zf(2);
-            case "a/p":
-              return d.getHours() < 12 ? "오전" : "오후";
+            case 'a/p':
+              return d.getHours() < 12 ? '오전' : '오후';
             default:
               return $1;
           }
@@ -139,7 +123,7 @@
       };
 
       String.prototype.string = function (len) {
-        var s = "",
+        var s = '',
           i = 0;
         while (i++ < len) {
           s += this;
@@ -147,7 +131,7 @@
         return s;
       };
       String.prototype.zf = function (len) {
-        return "0".string(len - this.length) + this;
+        return '0'.string(len - this.length) + this;
       };
       Number.prototype.zf = function (len) {
         return this.toString().zf(len);
@@ -162,7 +146,7 @@
         //v1
         const defaultHex = web3.utils.randomHex(28);
         const now = web3.utils.toHex(parseInt(Date.now() / 1000)).slice(2);
-        $("#randomField").html(`${defaultHex}${now}`);
+        $('#randomField').html(`${defaultHex}${now}`);
 
         //v2
         //let randomHex = web3.utils.randomHex(32).slice(0, 58) + Math.round(Date.now() / 1000).toString(16);
@@ -177,16 +161,13 @@
         //var hash = web3.utils.randomHex(32);
         const defaultHex = web3.utils.randomHex(28);
         const now = web3.eth.abi.encodeParameters(
-          ["address", "bytes32"],
+          ['address', 'bytes32'],
           //['0x038b9fceEb72F01cDe39DE4a3eb505ddfB7BC8b7', web3.utils.randomHex(32)])
 
-          [
-            "0xd759a88B0a5B3C3D189b9d9029e1551aF6600053",
-            web3.utils.randomHex(32),
-          ]
+          ['0xd759a88B0a5B3C3D189b9d9029e1551aF6600053', web3.utils.randomHex(32)],
         );
 
-        $("#randomDataField").html(`${now}`);
+        $('#randomDataField').html(`${now}`);
       }
     </script>
 
@@ -201,17 +182,17 @@
 
         var addr = ethereum.selectedAddress;
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "user",
-            action: "login",
+            cate: 'user',
+            action: 'login',
           },
           success: (res) => {
             var signMessage = res.message.signMsg;
             var signTime = res.message.time;
             var params = [signMessage, addr];
-            var method = "personal_sign";
+            var method = 'personal_sign';
 
             web3.currentProvider.sendAsync(
               {
@@ -226,8 +207,8 @@
                 }
 
                 $.ajax({
-                  type: "POST",
-                  url: requestUrl + "/auth/login",
+                  type: 'POST',
+                  url: requestUrl + '/auth/login',
                   data: {
                     from: addr,
                     msg: signMessage,
@@ -237,7 +218,7 @@
                   },
                   success: (res) => {
                     jwtToken = res.token;
-                    console.log("sign res", res);
+                    console.log('sign res', res);
                   },
                 });
 
@@ -247,32 +228,32 @@
                   sig: result.result,
                 });
               */
-              }
+              },
             );
           },
         });
 
-        console.log("login");
+        console.log('login');
       }
 
       function verify() {
         console.log(jwtToken);
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/auth/verify",
+          type: 'POST',
+          url: requestUrl + '/auth/verify',
           headers: {
-            Authorization: "Bearer " + jwtToken,
+            Authorization: 'Bearer ' + jwtToken,
           },
           data: {},
           success: (res) => {
             res.token;
-            console.log("sign res", res);
+            console.log('sign res', res);
           },
         });
       }
 
       function logout() {
-        console.log("logout");
+        console.log('logout');
       }
     </script>
     <div>tx status</div>
@@ -290,29 +271,27 @@
       function bridgeWithdrawToken() {
         //var hash = web3.utils.randomHex(32);
 
-        const hash =
-          web3.utils.randomHex(28) +
-          web3.utils.toHex(parseInt(Date.now() / 1000)).slice(2);
+        const hash = web3.utils.randomHex(28) + web3.utils.toHex(parseInt(Date.now() / 1000)).slice(2);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "bridge",
-            action: "bridgeWithdrawToken",
+            cate: 'bridge',
+            action: 'bridgeWithdrawToken',
             params: [
               hash,
-              "0x19B230810DfF2C8FE2A3fEa92D692BdFA70512Ff", //bridgeAddr
-              "0x4774bA6738C1c739811744F5B6f8E3631825a88d", //toAddr
-              "0x648953ef0e70d516cc578c3d75e5f3814a463f27", //tokenAddr
+              '0x19B230810DfF2C8FE2A3fEa92D692BdFA70512Ff', //bridgeAddr
+              '0x4774bA6738C1c739811744F5B6f8E3631825a88d', //toAddr
+              '0x648953ef0e70d516cc578c3d75e5f3814a463f27', //tokenAddr
               100, //amount
               true, //isSendingToOrigin
-              "ETH",
+              'ETH',
             ],
           },
           success: (res) => {
             var signMessage = res.message;
-            sign("bridge", "bridgeWithdrawToken", signMessage, hash);
+            sign('bridge', 'bridgeWithdrawToken', signMessage, hash);
           },
         });
       }
@@ -323,32 +302,30 @@
       function bridgeWithdrawNft() {
         //var hash = web3.utils.randomHex(32);
 
-        const hash =
-          web3.utils.randomHex(28) +
-          web3.utils.toHex(parseInt(Date.now() / 1000)).slice(2);
+        const hash = web3.utils.randomHex(28) + web3.utils.toHex(parseInt(Date.now() / 1000)).slice(2);
 
         //var withdrawTokenAddress = document.getElementById("withdrawTokenAddress2").value;
         //var withdrawTokenamount = document.getElementById("withdrawTokenamount").value;
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "bridge",
-            action: "bridgeWithdrawNft",
+            cate: 'bridge',
+            action: 'bridgeWithdrawNft',
             params: [
               hash,
-              "0x19B230810DfF2C8FE2A3fEa92D692BdFA70512Ff", //minterAddr
-              "0x4774bA6738C1c739811744F5B6f8E3631825a88d", //toAddr
-              "0x9eaa2ba6713e0db1ca532240ed42de24ff94edaf", //tokenAddr
+              '0x19B230810DfF2C8FE2A3fEa92D692BdFA70512Ff', //minterAddr
+              '0x4774bA6738C1c739811744F5B6f8E3631825a88d', //toAddr
+              '0x9eaa2ba6713e0db1ca532240ed42de24ff94edaf', //tokenAddr
               303, //tokenId
               true, //isSendingToOrigin
-              "ETH", //toChain
+              'ETH', //toChain
             ],
           },
           success: (res) => {
             var signMessage = res.message;
-            sign("bridge", "bridgeWithdrawNft", signMessage, hash);
+            sign('bridge', 'bridgeWithdrawNft', signMessage, hash);
           },
         });
       }
@@ -356,20 +333,11 @@
     <table>
       <tr style="vertical-align: top">
         <td>
-          <button onClick="$('#tokenWithdrawField').toggle()">
-            token withdraw
-          </button>
+          <button onClick="$('#tokenWithdrawField').toggle()">token withdraw</button>
           <br />
-          <fieldset
-            id="tokenWithdrawField"
-            style="display: none; margin-top: 5px; margin-bottom: 10px"
-          >
+          <fieldset id="tokenWithdrawField" style="display: none; margin-top: 5px; margin-bottom: 10px">
             tokenAddress
-            <input
-              type="text"
-              id="withdrawTokenAddress2"
-              value="0xEF2eb2273B13514134673f12b7324B83e7F556eA"
-            />
+            <input type="text" id="withdrawTokenAddress2" value="0xEF2eb2273B13514134673f12b7324B83e7F556eA" />
             amount
             <input type="text" id="withdrawTokenamount" value="1" />
             <button onclick="tokenWithdraw()">withdrawToken</button>
@@ -378,43 +346,30 @@
           </fieldset>
           <script>
             function tokenWithdraw() {
-              var withdrawTokenAddress = document.getElementById(
-                "withdrawTokenAddress2"
-              ).value;
-              var withdrawTokenamount = document.getElementById(
-                "withdrawTokenamount"
-              ).value;
+              var withdrawTokenAddress = document.getElementById('withdrawTokenAddress2').value;
+              var withdrawTokenamount = document.getElementById('withdrawTokenamount').value;
               var hash = web3.utils.randomHex(32);
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
-                  cate: "token",
-                  action: "withdraw",
+                  cate: 'token',
+                  action: 'withdraw',
                   params: [hash, withdrawTokenAddress, withdrawTokenamount],
                 },
                 success: (res) => {
                   var signMessage = res.message;
-                  sign("token", "withdraw", signMessage, hash);
+                  sign('token', 'withdraw', signMessage, hash);
                 },
               });
             }
           </script>
         </td>
         <td>
-          <button onClick="$('#nftWithdrawField').toggle()">
-            nft withdraw
-          </button>
-          <fieldset
-            id="nftWithdrawField"
-            style="display: none; margin-top: 5px; margin-bottom: 10px"
-          >
+          <button onClick="$('#nftWithdrawField').toggle()">nft withdraw</button>
+          <fieldset id="nftWithdrawField" style="display: none; margin-top: 5px; margin-bottom: 10px">
             tokenAddress
-            <input
-              type="text"
-              id="withdrawTokenAddress"
-              value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a"
-            />
+            <input type="text" id="withdrawTokenAddress" value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a" />
             tokenId
             <input type="text" id="withdrawTokenId" value="10" />
             <button onclick="nftWithdraw()">withdrawNft</button>
@@ -423,24 +378,21 @@
           </fieldset>
           <script>
             function nftWithdraw() {
-              var withdrawTokenAddress = document.getElementById(
-                "withdrawTokenAddress"
-              ).value;
-              var withdrawTokenId = document.getElementById("withdrawTokenId")
-                .value;
+              var withdrawTokenAddress = document.getElementById('withdrawTokenAddress').value;
+              var withdrawTokenId = document.getElementById('withdrawTokenId').value;
               var hash = web3.utils.randomHex(32);
 
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
-                  cate: "nft",
-                  action: "withdraw",
+                  cate: 'nft',
+                  action: 'withdraw',
                   params: [hash, withdrawTokenAddress, withdrawTokenId],
                 },
                 success: (res) => {
                   var signMessage = res.message;
-                  sign("nft", "withdraw", signMessage, hash);
+                  sign('nft', 'withdraw', signMessage, hash);
                 },
               });
             }
@@ -450,27 +402,16 @@
       <tr style="vertical-align: top">
         <td>
           <button onClick="$('#auctionAddField').toggle()">auction add</button>
-          <fieldset
-            id="auctionAddField"
-            style="display: none; margin-top: 5px; margin-bottom: 10px"
-          >
+          <fieldset id="auctionAddField" style="display: none; margin-top: 5px; margin-bottom: 10px">
             <form id="auctionAddForm">
               nftAddr
-              <input
-                type="text"
-                name="nftAddr"
-                value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a"
-              />
+              <input type="text" name="nftAddr" value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a" />
               <br />
               tokenId
               <input type="text" name="tokenId" value="1" />
               <br />
               biddingToken
-              <input
-                type="text"
-                name="allowedToken"
-                value="0x0000000000000000000000000000000000000000"
-              />
+              <input type="text" name="allowedToken" value="0x0000000000000000000000000000000000000000" />
               <br />
               minAmount
               <input type="text" name="maxTokenAmount" value="1" />
@@ -484,30 +425,28 @@
               isInstantTrade
               <input type="text" name="isInstantTrade" value="true" />
               <br />
-              <button id="AuctionAdded" type="button" onclick="auctionAdd()">
-                AuctionAdded
-              </button>
+              <button id="AuctionAdded" type="button" onclick="auctionAdd()">AuctionAdded</button>
             </form>
           </fieldset>
 
           <script>
             function auctionAdd() {
-              var params = $("#auctionAddForm").serializeArray2();
+              var params = $('#auctionAddForm').serializeArray2();
               var hash = web3.utils.randomHex(32);
               params.unshift(hash);
 
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
-                  cate: "auction",
-                  action: "add",
+                  cate: 'auction',
+                  action: 'add',
                   params: params,
                 },
                 success: (res) => {
                   var signMessage = res.message;
 
-                  sign("auction", "add", signMessage, hash);
+                  sign('auction', 'add', signMessage, hash);
                 },
               });
 
@@ -517,23 +456,14 @@
         </td>
 
         <td>
-          <button onClick="$('#auctionEditField').toggle()">
-            auction edit
-          </button>
-          <fieldset
-            id="auctionEditField"
-            style="display: none; margin-top: 5px; margin-bottom: 10px"
-          >
+          <button onClick="$('#auctionEditField').toggle()">auction edit</button>
+          <fieldset id="auctionEditField" style="display: none; margin-top: 5px; margin-bottom: 10px">
             <form id="auctionEditForm">
               auctionId
               <input type="text" name="auctionId" value="" />
               <br />
               biddingToken
-              <input
-                type="text"
-                name="allowedToken"
-                value="0x0000000000000000000000000000000000000000"
-              />
+              <input type="text" name="allowedToken" value="0x0000000000000000000000000000000000000000" />
               <br />
               minAmount
               <input type="text" name="minTokenAmount" value="1" />
@@ -552,15 +482,15 @@
           </fieldset>
           <script>
             function auctionEdit() {
-              var params = $("#auctionEditForm").serializeArray2();
+              var params = $('#auctionEditForm').serializeArray2();
               var hash = web3.utils.randomHex(32);
-              var cate = "auction";
-              var action = "edit";
+              var cate = 'auction';
+              var action = 'edit';
               params.unshift(hash);
 
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
                   cate: cate,
                   action: action,
@@ -579,27 +509,16 @@
       <tr style="vertical-align: top">
         <td>
           <button onClick="$('#sellAddField').toggle()">sell add</button>
-          <fieldset
-            id="sellAddField"
-            style="display: block; margin-top: 5px; margin-bottom: 10px"
-          >
+          <fieldset id="sellAddField" style="display: block; margin-top: 5px; margin-bottom: 10px">
             <form id="sellAddForm">
               nftAddr
-              <input
-                type="text"
-                name="nftAddr"
-                value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a"
-              />
+              <input type="text" name="nftAddr" value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a" />
               <br />
               tokenId
               <input type="text" name="tokenId" value="1" />
               <br />
               wantedToken
-              <input
-                type="text"
-                name="allowedToken"
-                value="0x0000000000000000000000000000000000000000"
-              />
+              <input type="text" name="allowedToken" value="0x0000000000000000000000000000000000000000" />
               <br />
               maxAmount
               <input type="text" name="maxTokenAmount" value="100" />
@@ -613,7 +532,7 @@
 
           <script>
             function sellAdd() {
-              var params = $("#sellAddForm").serializeArray2();
+              var params = $('#sellAddForm').serializeArray2();
               var hash = web3.utils.randomHex(32);
 
               hash = hash.slice(0, 58);
@@ -622,17 +541,17 @@
               params.unshift(hash);
 
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
-                  cate: "sell",
-                  action: "add",
+                  cate: 'sell',
+                  action: 'add',
                   params: params,
                 },
                 success: (res) => {
                   var signMessage = res.message;
 
-                  sign("sell", "add", signMessage, hash);
+                  sign('sell', 'add', signMessage, hash);
                 },
               });
 
@@ -643,20 +562,13 @@
 
         <td>
           <button onClick="$('#sellEditField').toggle()">sell edit</button>
-          <fieldset
-            id="sellEditField"
-            style="display: block; margin-top: 5px; margin-bottom: 10px"
-          >
+          <fieldset id="sellEditField" style="display: block; margin-top: 5px; margin-bottom: 10px">
             <form id="sellEditForm">
               sellId
               <input type="text" name="sellId" value="" />
               <br />
               wantedToken
-              <input
-                type="text"
-                name="allowedToken"
-                value="0x0000000000000000000000000000000000000000"
-              />
+              <input type="text" name="allowedToken" value="0x0000000000000000000000000000000000000000" />
               <br />
               maxAmount
               <input type="text" name="maxTokenAmount" value="100" />
@@ -669,16 +581,16 @@
           </fieldset>
           <script>
             function sellEdit() {
-              var params = $("#sellEditForm").serializeArray2();
+              var params = $('#sellEditForm').serializeArray2();
               var hash = web3.utils.randomHex(32);
-              var cate = "sell";
-              var action = "edit";
+              var cate = 'sell';
+              var action = 'edit';
 
               params.unshift(hash);
 
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
                   cate: cate,
                   action: action,
@@ -697,27 +609,16 @@
       <tr style="vertical-align: top">
         <td>
           <button onClick="$('#buyAddField').toggle()">buy add</button>
-          <fieldset
-            id="buyAddField"
-            style="display: none; margin-top: 5px; margin-bottom: 10px"
-          >
+          <fieldset id="buyAddField" style="display: none; margin-top: 5px; margin-bottom: 10px">
             <form id="buyAddForm">
               nftAddr
-              <input
-                type="text"
-                name="nftAddr"
-                value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a"
-              />
+              <input type="text" name="nftAddr" value="0x1FF2E556a5884fA61Ccd06f09197522D25B5ef3a" />
               <br />
               tokenId
               <input type="text" name="tokenId" value="1" />
               <br />
               offeredToken
-              <input
-                type="text"
-                name="allowedToken"
-                value="0x0000000000000000000000000000000000000000"
-              />
+              <input type="text" name="allowedToken" value="0x0000000000000000000000000000000000000000" />
               <br />
               amount
               <input type="text" name="maxTokenAmount" value="100" />
@@ -727,22 +628,22 @@
           </fieldset>
           <script>
             function buyAdd() {
-              var params = $("#buyAddForm").serializeArray2();
+              var params = $('#buyAddForm').serializeArray2();
               var hash = web3.utils.randomHex(32);
               params.unshift(hash);
 
               $.ajax({
-                type: "POST",
-                url: requestUrl + "/sign/message",
+                type: 'POST',
+                url: requestUrl + '/sign/message',
                 data: {
-                  cate: "buy",
-                  action: "add",
+                  cate: 'buy',
+                  action: 'add',
                   params: params,
                 },
                 success: (res) => {
                   var signMessage = res.message;
 
-                  sign("buy", "add", signMessage, hash);
+                  sign('buy', 'add', signMessage, hash);
                 },
               });
 
@@ -760,133 +661,130 @@
     <br />
 
     <button type="button" onclick="callAuction()">callAuctions</button>
-    <table
-      id="auctions"
-      style="display: none; border: 1px solid #444444"
-    ></table>
+    <table id="auctions" style="display: none; border: 1px solid #444444"></table>
     <br />
     <script>
       function callAuction() {
-        $("#auctions").show();
+        $('#auctions').show();
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/auctions/",
+          type: 'GET',
+          url: requestUrl + '/auctions/',
           success: (res) => {
             var auctions = res.items;
-            $("#auctions").empty();
-            $("#auctions").append(
-              "<tr>" +
-                "<th>id</th>" +
-                "<th>tokenAddr</th>" +
-                "<th>lastBidder</th>" +
-                "<th>tokenId</th>" +
-                "<th>basePrice</th>" +
-                "<th>currentPrice</th>" +
-                "<th>maxPrice</th>" +
-                "<th>startTime</th>" +
-                "<th>endTime</th>" +
-                "<th>isInstance</th>" +
-                "<th>#</th>" +
-                "<th>status</th>" +
-                "<th>bid</th>" +
-                "</tr>"
+            $('#auctions').empty();
+            $('#auctions').append(
+              '<tr>' +
+                '<th>id</th>' +
+                '<th>tokenAddr</th>' +
+                '<th>lastBidder</th>' +
+                '<th>tokenId</th>' +
+                '<th>basePrice</th>' +
+                '<th>currentPrice</th>' +
+                '<th>maxPrice</th>' +
+                '<th>startTime</th>' +
+                '<th>endTime</th>' +
+                '<th>isInstance</th>' +
+                '<th>#</th>' +
+                '<th>status</th>' +
+                '<th>bid</th>' +
+                '</tr>',
             ); //add row to table with current time
 
             auctions.forEach((auction) => {
-              let typeStr = "";
+              let typeStr = '';
               switch (auction.type) {
                 case 1:
-                  typeStr = "no";
+                  typeStr = 'no';
                   break;
                 case 2:
-                  typeStr = "yes";
+                  typeStr = 'yes';
                   break;
                 case 4:
-                  typeStr = "withdraw";
+                  typeStr = 'withdraw';
                   break;
               }
 
-              let statusStr = "";
+              let statusStr = '';
               switch (auction.status) {
                 case 2:
-                  statusStr = "start";
+                  statusStr = 'start';
                   break;
                 case 3:
-                  statusStr = "cancel";
+                  statusStr = 'cancel';
                   break;
                 case 4:
-                  statusStr = "EXPIRE";
+                  statusStr = 'EXPIRE';
                   break;
                 case 7:
-                  statusStr = "done";
+                  statusStr = 'done';
                   break;
               }
 
-              $("#auctions").append(
-                "<tr>" +
+              $('#auctions').append(
+                '<tr>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   auction.id.toString() +
-                  "')\">" +
+                  '\')">' +
                   auction.id.substring(0, 10) +
-                  "...</button></td>" +
+                  '...</button></td>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   auction.tokenAddress.toString() +
-                  "')\">" +
+                  '\')">' +
                   auction.tokenAddress.substring(0, 10) +
-                  "...</button></td>" +
+                  '...</button></td>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   auction.bidderAddress.toString() +
-                  "')\">" +
+                  '\')">' +
                   auction.bidderAddress.substring(0, 10) +
-                  "...</button></td>" +
-                  "<td>" +
+                  '...</button></td>' +
+                  '<td>' +
                   auction.tokenId +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   auction.basePrice +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   auction.currentPrice +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   auction.straightPrice +
-                  "</td>" +
-                  "<td>" +
-                  new Date(auction.startTime).format("yy/MM/dd hh:mm") +
-                  "</td>" +
-                  "<td>" +
-                  new Date(auction.endTime).format("yy/MM/dd hh:mm") +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
+                  new Date(auction.startTime).format('yy/MM/dd hh:mm') +
+                  '</td>' +
+                  '<td>' +
+                  new Date(auction.endTime).format('yy/MM/dd hh:mm') +
+                  '</td>' +
+                  '<td>' +
                   typeStr +
-                  "</td>" +
+                  '</td>' +
                   '<td><button type="button" onclick="auctionCancel(\'' +
                   auction.id +
-                  "')\">cancel</button>" +
+                  '\')">cancel</button>' +
                   '<button type="button" onclick="auctionClose(\'' +
                   auction.id +
-                  "')\">close</button>" +
+                  '\')">close</button>' +
                   '<button type="button" onclick="retrieve(\'' +
                   auction.id +
-                  "')\">회수</button>" +
-                  "</td>" +
-                  "<td>" +
+                  '\')">회수</button>' +
+                  '</td>' +
+                  '<td>' +
                   statusStr +
-                  "</td>" +
+                  '</td>' +
                   '<td><button type="button" onclick="bidding(\'' +
                   auction.id +
-                  "')\">bid</button>" +
+                  '\')">bid</button>' +
                   '<button type="button" onclick="bidList(\'' +
                   auction.id +
-                  "')\">bid list</button>" +
+                  '\')">bid list</button>' +
                   '<input type="text" id="auctionBid' +
                   auction.id +
                   '" placeholder="bid amount"></td>' +
-                  "</tr>" +
+                  '</tr>' +
                   '<tr><td colspan=12  id="bidTable' +
                   auction.id +
                   '" style="display:none;">' +
-                  "</td></tr>"
+                  '</td></tr>',
               ); //add row to table with current time
             });
           },
@@ -894,63 +792,63 @@
       }
 
       function bidList(auctionId) {
-        var bidPrice = $("#bidTable" + auctionId).toggle();
+        var bidPrice = $('#bidTable' + auctionId).toggle();
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/auctions/" + auctionId + "/bids",
+          type: 'GET',
+          url: requestUrl + '/auctions/' + auctionId + '/bids',
           success: (res) => {
             var bids = res.data.items;
-            $("#bidTable" + auctionId).empty();
+            $('#bidTable' + auctionId).empty();
 
-            var tagStr = "";
+            var tagStr = '';
             tagStr +=
-              "<table><tbody>" +
-              "<tr>" +
-              "<th>bidId</th>" +
-              "<th>bidIndex</th>" +
-              "<th>accountAddr</th>" +
-              "<th>bidPrice</th>" +
-              "<th>status</th>" +
-              "</tr>";
+              '<table><tbody>' +
+              '<tr>' +
+              '<th>bidId</th>' +
+              '<th>bidIndex</th>' +
+              '<th>accountAddr</th>' +
+              '<th>bidPrice</th>' +
+              '<th>status</th>' +
+              '</tr>';
 
             bids.forEach((bid) => {
-              console.log("bid in");
-              let statusStr = "";
+              console.log('bid in');
+              let statusStr = '';
               switch (bid.status) {
                 case 1:
-                  statusStr = "start";
+                  statusStr = 'start';
                   break;
                 case 2:
-                  statusStr = "now";
+                  statusStr = 'now';
                   break;
                 case 3:
-                  statusStr = "cancel";
+                  statusStr = 'cancel';
                   break;
                 case 4:
-                  statusStr = "done";
+                  statusStr = 'done';
                   break;
               }
               tagStr +=
-                "<tr>" +
-                "<td>" +
+                '<tr>' +
+                '<td>' +
                 bid.id.substring(0, 10) +
-                "...</td>" +
-                "<td>" +
+                '...</td>' +
+                '<td>' +
                 bid.bidIndex +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 bid.accountAddress.substring(0, 10) +
-                "...</td>" +
-                "<td>" +
+                '...</td>' +
+                '<td>' +
                 bid.bidPrice +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 statusStr +
-                "</td>" +
-                "</tr>";
+                '</td>' +
+                '</tr>';
             });
-            console.log("tabli out");
-            $("#bidTable" + auctionId).append(tagStr + "</tbody></table>");
+            console.log('tabli out');
+            $('#bidTable' + auctionId).append(tagStr + '</tbody></table>');
           },
         });
       }
@@ -959,36 +857,36 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "auction",
-            action: "cancel",
+            cate: 'auction',
+            action: 'cancel',
             params: [hash, auctionId],
           },
           success: (res) => {
             var signMessage = res.message;
-            sign("auction", "cancel", signMessage);
+            sign('auction', 'cancel', signMessage);
           },
         });
       }
 
       function bidding(auctionId) {
         var hash = web3.utils.randomHex(32);
-        var bidPrice = $("#auctionBid" + auctionId).val();
+        var bidPrice = $('#auctionBid' + auctionId).val();
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "auction",
-            action: "bid",
+            cate: 'auction',
+            action: 'bid',
             params: [hash, auctionId, bidPrice],
           },
           success: (res) => {
             var signMessage = res.message;
 
-            sign("auction", "bid", signMessage);
+            sign('auction', 'bid', signMessage);
           },
         });
       }
@@ -997,27 +895,27 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "auction",
-            action: "close",
+            cate: 'auction',
+            action: 'close',
             params: [hash, auctionId],
           },
           success: (res) => {
             var signMessage = res.message;
-            sign("auction", "close", signMessage, hash);
+            sign('auction', 'close', signMessage, hash);
           },
         });
       }
 
       function retrieve(auctionId) {
         var hash = web3.utils.randomHex(32);
-        var cate = "auction";
-        var action = "retrieve";
+        var cate = 'auction';
+        var action = 'retrieve';
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
             cate: cate,
             action: action,
@@ -1036,117 +934,117 @@
     <table id="sells" style="display: block; border: 1px solid #444444"></table>
     <script>
       function callSell() {
-        $("#sells").show();
+        $('#sells').show();
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/sells/",
+          type: 'GET',
+          url: requestUrl + '/sells/',
           success: (res) => {
             var sells = res.items;
 
-            $("#sells").empty();
-            $("#sells").append(
-              "<tr>" +
-                "<th>id</th>" +
-                "<th>tokenAddr</th>" +
-                "<th>tokenId</th>" +
-                "<th>basePrice</th>" +
-                "<th>currentPrice</th>" +
-                "<th>startTime</th>" +
-                "<th>endTime</th>" +
-                "<th>isInstance</th>" +
-                "<th>#</th>" +
-                "<th>status</th>" +
-                "<th>nego</th>" +
-                "</tr>"
+            $('#sells').empty();
+            $('#sells').append(
+              '<tr>' +
+                '<th>id</th>' +
+                '<th>tokenAddr</th>' +
+                '<th>tokenId</th>' +
+                '<th>basePrice</th>' +
+                '<th>currentPrice</th>' +
+                '<th>startTime</th>' +
+                '<th>endTime</th>' +
+                '<th>isInstance</th>' +
+                '<th>#</th>' +
+                '<th>status</th>' +
+                '<th>nego</th>' +
+                '</tr>',
             ); //add row to table with current time
 
             sells.forEach((sell) => {
-              let typeStr = "";
+              let typeStr = '';
               switch (sell.type) {
                 case 1:
-                  typeStr = "no Nego";
+                  typeStr = 'no Nego';
                   break;
                 case 2:
-                  typeStr = "Negotiable";
+                  typeStr = 'Negotiable';
                   break;
               }
 
-              let statusStr = "";
+              let statusStr = '';
               switch (sell.status) {
                 case 2:
-                  statusStr = "start";
+                  statusStr = 'start';
                   break;
                 case 3:
-                  statusStr = "cancel";
+                  statusStr = 'cancel';
                   break;
                 case 4:
-                  statusStr = "EXPIRE";
+                  statusStr = 'EXPIRE';
                   break;
                 case 7:
-                  statusStr = "done";
+                  statusStr = 'done';
                   break;
               }
 
-              $("#sells").append(
-                "<tr>" +
+              $('#sells').append(
+                '<tr>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   sell.id.toString() +
-                  "')\">" +
+                  '\')">' +
                   sell.id.substring(0, 10) +
-                  "...</button></td>" +
+                  '...</button></td>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   sell.tokenAddress.toString() +
-                  "')\">" +
+                  '\')">' +
                   sell.tokenAddress.substring(0, 10) +
-                  "...</button></td>" +
-                  "<td>" +
+                  '...</button></td>' +
+                  '<td>' +
                   sell.tokenId +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   sell.basePrice +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   sell.currentPrice +
-                  "</td>" +
-                  "<td>" +
-                  new Date(sell.startTime).format("yy/MM/dd hh:mm") +
-                  "</td>" +
-                  "<td>" +
-                  new Date(sell.endTime).format("yy/MM/dd hh:mm") +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
+                  new Date(sell.startTime).format('yy/MM/dd hh:mm') +
+                  '</td>' +
+                  '<td>' +
+                  new Date(sell.endTime).format('yy/MM/dd hh:mm') +
+                  '</td>' +
+                  '<td>' +
                   typeStr +
-                  "</td>" +
+                  '</td>' +
                   '<td><button type="button" onclick="sellCancel(\'' +
                   sell.id +
-                  "')\">cancel</button>" +
+                  '\')">cancel</button>' +
                   '<button type="button" onclick="sellClose(\'' +
                   sell.id +
-                  "')\">close</button>" +
+                  '\')">close</button>' +
                   '<button type="button" onclick="retrieveSell(\'' +
                   sell.id +
-                  "')\">회수</button>" +
-                  "</td>" +
-                  "<td>" +
+                  '\')">회수</button>' +
+                  '</td>' +
+                  '<td>' +
                   statusStr +
-                  "</td>" +
+                  '</td>' +
                   '<td><button type="button" onclick="nego(\'' +
                   sell.id +
-                  "')\">nego</button>" +
+                  '\')">nego</button>' +
                   '<button type="button" onclick="negoList(\'' +
                   sell.id +
-                  "')\">nego list</button>" +
+                  '\')">nego list</button>' +
                   '<input type="text" id="sellNegoAddr' +
                   sell.id +
                   '" placeholder="nego Addr" value="0x0000000000000000000000000000000000000000">' +
                   '<input type="text" id="sellNego' +
                   sell.id +
                   '" placeholder="nego amount"></td>' +
-                  "</tr>" +
+                  '</tr>' +
                   '<tr><td colspan=12  id="negoTable' +
                   sell.id +
                   '" style="display:none;">' +
-                  "</td></tr>"
+                  '</td></tr>',
               ); //add row to table with current time
             });
           },
@@ -1154,75 +1052,75 @@
       }
 
       function negoList(sellId) {
-        $("#negoTable" + sellId).toggle();
+        $('#negoTable' + sellId).toggle();
 
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/sells/" + sellId + "/negos",
+          type: 'GET',
+          url: requestUrl + '/sells/' + sellId + '/negos',
           success: (res) => {
             var negos = res.items;
-            $("#negoTable" + sellId).empty();
+            $('#negoTable' + sellId).empty();
 
-            var tagStr = "";
+            var tagStr = '';
             tagStr +=
-              "<table><tbody>" +
-              "<tr>" +
-              "<th>accountAddress</th>" +
-              "<th>currency</th>" +
-              "<th>negoPrice</th>" +
-              "<th>status</th>" +
-              "<th>#</th>" +
-              "</tr>";
+              '<table><tbody>' +
+              '<tr>' +
+              '<th>accountAddress</th>' +
+              '<th>currency</th>' +
+              '<th>negoPrice</th>' +
+              '<th>status</th>' +
+              '<th>#</th>' +
+              '</tr>';
 
             negos.forEach((nego) => {
-              let statusStr = "";
+              let statusStr = '';
               switch (nego.status) {
                 case 1:
-                  statusStr = "start";
+                  statusStr = 'start';
                   break;
                 case 2:
-                  statusStr = "now";
+                  statusStr = 'now';
                   break;
                 case 3:
-                  statusStr = "cancel";
+                  statusStr = 'cancel';
                   break;
                 case 4:
-                  statusStr = "done";
+                  statusStr = 'done';
                   break;
               }
               tagStr +=
-                "<tr>" +
-                "<td>" +
+                '<tr>' +
+                '<td>' +
                 nego.accountAddress.substring(0, 10) +
-                "...</td>" +
-                "<td>" +
+                '...</td>' +
+                '<td>' +
                 nego.currency +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 nego.negoPrice +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 statusStr +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 '<button type="button" onclick="negoAccept(\'' +
                 nego.sellId +
                 "','" +
                 nego.accountAddress +
-                "')\">nego accept</button>" +
+                '\')">nego accept</button>' +
                 '<button type="button" onclick="negoReject(\'' +
                 nego.sellId +
                 "','" +
                 nego.accountAddress +
-                "')\">nego reject</button>" +
+                '\')">nego reject</button>' +
                 '<button type="button" onclick="negoCancel(\'' +
                 nego.sellId +
-                "')\">nego cancel</button>" +
-                "</td>" +
-                "</tr>";
+                '\')">nego cancel</button>' +
+                '</td>' +
+                '</tr>';
             });
             console.log(tagStr);
-            $("#negoTable" + sellId).append(tagStr + "</tbody></table>");
+            $('#negoTable' + sellId).append(tagStr + '</tbody></table>');
           },
         });
       }
@@ -1231,38 +1129,38 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "sell",
-            action: "cancel",
+            cate: 'sell',
+            action: 'cancel',
             params: [hash, sellId],
           },
           success: (res) => {
             var signMessage = res.message;
-            sign("sell", "cancel", signMessage);
+            sign('sell', 'cancel', signMessage);
           },
         });
       }
 
       function nego(sellId) {
         var hash = web3.utils.randomHex(32);
-        var negoAddr = $("#sellNegoAddr" + sellId).val();
+        var negoAddr = $('#sellNegoAddr' + sellId).val();
 
-        var negoPrice = $("#sellNego" + sellId).val();
+        var negoPrice = $('#sellNego' + sellId).val();
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "sell",
-            action: "nego",
+            cate: 'sell',
+            action: 'nego',
             params: [hash, sellId, negoAddr, negoPrice],
           },
           success: (res) => {
             var signMessage = res.message;
 
-            sign("sell", "nego", signMessage);
+            sign('sell', 'nego', signMessage);
           },
         });
       }
@@ -1271,17 +1169,17 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "sell",
-            action: "acceptNego",
+            cate: 'sell',
+            action: 'acceptNego',
             params: [hash, sellId, negoUser],
           },
           success: (res) => {
             var signMessage = res.message;
 
-            sign("sell", "acceptNego", signMessage);
+            sign('sell', 'acceptNego', signMessage);
           },
         });
       }
@@ -1290,17 +1188,17 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "sell",
-            action: "rejectNego",
+            cate: 'sell',
+            action: 'rejectNego',
             params: [hash, sellId, negoUser],
           },
           success: (res) => {
             var signMessage = res.message;
 
-            sign("sell", "rejectNego", signMessage);
+            sign('sell', 'rejectNego', signMessage);
           },
         });
       }
@@ -1309,17 +1207,17 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "sell",
-            action: "cancelNego",
+            cate: 'sell',
+            action: 'cancelNego',
             params: [hash, sellId],
           },
           success: (res) => {
             var signMessage = res.message;
 
-            sign("sell", "cancelNego", signMessage);
+            sign('sell', 'cancelNego', signMessage);
           },
         });
       }
@@ -1328,27 +1226,27 @@
         var hash = web3.utils.randomHex(32);
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
-            cate: "sell",
-            action: "close",
+            cate: 'sell',
+            action: 'close',
             params: [hash, sellId],
           },
           success: (res) => {
             var signMessage = res.message;
-            sign("sell", "close", signMessage, hash);
+            sign('sell', 'close', signMessage, hash);
           },
         });
       }
 
       function retrieveSell(sellId) {
         var hash = web3.utils.randomHex(32);
-        var cate = "sell";
-        var action = "retrieve";
+        var cate = 'sell';
+        var action = 'retrieve';
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
             cate: cate,
             action: action,
@@ -1367,112 +1265,112 @@
     <table id="buys" style="display: block; border: 1px solid #444444"></table>
     <script>
       function callBuy() {
-        $("#buys").show();
+        $('#buys').show();
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/buys/",
+          type: 'GET',
+          url: requestUrl + '/buys/',
           success: (res) => {
             var buys = res.items;
 
-            $("#buys").empty();
-            $("#buys").append(
-              "<tr>" +
-                "<th>id</th>" +
-                "<th>tokenAddr</th>" +
-                "<th>tokenId</th>" +
-                "<th>basePrice</th>" +
-                "<th>currentPrice</th>" +
-                "<th>startTime</th>" +
-                "<th>endTime</th>" +
-                "<th>isInstance</th>" +
-                "<th>#</th>" +
-                "<th>status</th>" +
-                "<th>#</th>" +
-                "</tr>"
+            $('#buys').empty();
+            $('#buys').append(
+              '<tr>' +
+                '<th>id</th>' +
+                '<th>tokenAddr</th>' +
+                '<th>tokenId</th>' +
+                '<th>basePrice</th>' +
+                '<th>currentPrice</th>' +
+                '<th>startTime</th>' +
+                '<th>endTime</th>' +
+                '<th>isInstance</th>' +
+                '<th>#</th>' +
+                '<th>status</th>' +
+                '<th>#</th>' +
+                '</tr>',
             ); //add row to table with current time
 
             buys.forEach((buy) => {
-              let typeStr = "";
+              let typeStr = '';
               switch (buy.type) {
                 case 1:
-                  typeStr = "no Nego";
+                  typeStr = 'no Nego';
                   break;
                 case 2:
-                  typeStr = "Negotiable";
+                  typeStr = 'Negotiable';
                   break;
               }
 
-              let statusStr = "";
+              let statusStr = '';
               switch (buy.status) {
                 case 2:
-                  statusStr = "start";
+                  statusStr = 'start';
                   break;
                 case 3:
-                  statusStr = "cancel";
+                  statusStr = 'cancel';
                   break;
                 case 4:
-                  statusStr = "EXPIRE";
+                  statusStr = 'EXPIRE';
                   break;
                 case 7:
-                  statusStr = "done";
+                  statusStr = 'done';
                   break;
               }
 
-              $("#buys").append(
-                "<tr>" +
+              $('#buys').append(
+                '<tr>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   buy.id.toString() +
-                  "')\">" +
+                  '\')">' +
                   buy.id.substring(0, 10) +
-                  "...</button></td>" +
+                  '...</button></td>' +
                   '<td><button type="button" onclick="copyToClipboard(\'' +
                   buy.tokenAddress.toString() +
-                  "')\">" +
+                  '\')">' +
                   buy.tokenAddress.substring(0, 10) +
-                  "...</button></td>" +
-                  "<td>" +
+                  '...</button></td>' +
+                  '<td>' +
                   buy.tokenId +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   buy.basePrice +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
                   buy.currentPrice +
-                  "</td>" +
-                  "<td>" +
-                  new Date(buy.startTime).format("yy/MM/dd hh:mm") +
-                  "</td>" +
-                  "<td>" +
-                  new Date(buy.endTime).format("yy/MM/dd hh:mm") +
-                  "</td>" +
-                  "<td>" +
+                  '</td>' +
+                  '<td>' +
+                  new Date(buy.startTime).format('yy/MM/dd hh:mm') +
+                  '</td>' +
+                  '<td>' +
+                  new Date(buy.endTime).format('yy/MM/dd hh:mm') +
+                  '</td>' +
+                  '<td>' +
                   typeStr +
-                  "</td>" +
+                  '</td>' +
                   '<td><button type="button" onclick="buySell(\'' +
                   buy.id +
-                  "')\">sell</button>" +
+                  '\')">sell</button>' +
                   '<button type="button" onclick="buyCancel(\'' +
                   buy.id +
-                  "')\">cancel</button>" +
+                  '\')">cancel</button>' +
                   '<button type="button" onclick="retrieveBuy(\'' +
                   buy.id +
-                  "')\">회수</button>" +
-                  "</td>" +
-                  "<td>" +
+                  '\')">회수</button>' +
+                  '</td>' +
+                  '<td>' +
                   statusStr +
-                  "</td>" +
+                  '</td>' +
                   '<td><button type="button" onclick="buyEdit(\'' +
                   buy.id +
-                  "')\">edit</button>" +
+                  '\')">edit</button>' +
                   '<input type="text" id="buyAddr' +
                   buy.id +
                   '" placeholder="buy addr">' +
                   '<input type="text" id="buy' +
                   buy.id +
                   '" placeholder="buy amount">' +
-                  "</td>" +
-                  "</tr>" +
-                  "</td></tr>"
+                  '</td>' +
+                  '</tr>' +
+                  '</td></tr>',
               ); //add row to table with current time
             });
           },
@@ -1482,12 +1380,12 @@
       function buySell(buyId) {
         var hash = web3.utils.randomHex(32);
 
-        var cate = "buy";
-        var action = "sellNft";
+        var cate = 'buy';
+        var action = 'sellNft';
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
             cate: cate,
             action: action,
@@ -1503,12 +1401,12 @@
       function buyEdit(buyId) {
         var hash = web3.utils.randomHex(32);
 
-        var cate = "buy";
-        var action = "cancel";
+        var cate = 'buy';
+        var action = 'cancel';
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
             cate: cate,
             action: action,
@@ -1523,15 +1421,15 @@
       }
       function buyCancel(buyId) {
         var hash = web3.utils.randomHex(32);
-        var editAddr = $("#buyAddr" + buyId).val();
-        var editPrice = $("#buy" + buyId).val();
+        var editAddr = $('#buyAddr' + buyId).val();
+        var editPrice = $('#buy' + buyId).val();
 
-        var cate = "buy";
-        var action = "cancel";
+        var cate = 'buy';
+        var action = 'cancel';
 
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
             cate: cate,
             action: action,
@@ -1546,13 +1444,13 @@
       }
 
       function retrieveBuy(buyId) {
-        console.log("buy", buyId);
+        console.log('buy', buyId);
         var hash = web3.utils.randomHex(32);
-        var cate = "buy";
-        var action = "retrieve";
+        var cate = 'buy';
+        var action = 'retrieve';
         $.ajax({
-          type: "POST",
-          url: requestUrl + "/sign/message",
+          type: 'POST',
+          url: requestUrl + '/sign/message',
           data: {
             cate: cate,
             action: action,
@@ -1571,21 +1469,17 @@
     <table id="walletBalances" style="border: 1px solid #444444"></table>
     <script>
       function getBalance() {
-        var getBalanceaddr = document.getElementById("getBalanceaddr").value;
+        var getBalanceaddr = document.getElementById('getBalanceaddr').value;
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/account/" + getBalanceaddr + "/totalBalance",
+          type: 'GET',
+          url: requestUrl + '/account/' + getBalanceaddr + '/totalBalance',
           success: (res) => {
             var wallets = res.tokens;
-            $("#walletBalances").empty();
+            $('#walletBalances').empty();
 
             wallets.forEach((wallet) => {
-              $("#walletBalances").append(
-                "<tr><td>" +
-                  wallet.tokenAddress +
-                  "</td><td>" +
-                  wallet.amount +
-                  "</td><td></td></tr>"
+              $('#walletBalances').append(
+                '<tr><td>' + wallet.tokenAddress + '</td><td>' + wallet.amount + '</td><td></td></tr>',
               ); //add row to table with current time
             });
           },
@@ -1594,61 +1488,61 @@
 
       function callNfts() {
         $.ajax({
-          type: "GET",
-          url: requestUrl + "/nfts",
+          type: 'GET',
+          url: requestUrl + '/nfts',
           success: (res) => {
             var nfts = res.items;
-            $("#nfts").empty();
-            $("#nfts").append(
-              "<tr><th>owner</th><th><th>tokenAddr</th><th>tokenId</th><th>tradeId</th><th>status</th></tr>"
+            $('#nfts').empty();
+            $('#nfts').append(
+              '<tr><th>owner</th><th><th>tokenAddr</th><th>tokenId</th><th>tradeId</th><th>status</th></tr>',
             ); //add row to table with current time
 
             nfts.forEach((nft) => {
-              let statusStr = "";
+              let statusStr = '';
               switch (nft.status) {
                 case 1:
-                  statusStr = "deposit";
+                  statusStr = 'deposit';
                   break;
                 case 2:
-                  statusStr = "in sell";
+                  statusStr = 'in sell';
                   break;
                 case 3:
-                  statusStr = "in auction";
+                  statusStr = 'in auction';
                   break;
                 case 4:
-                  statusStr = "buy";
+                  statusStr = 'buy';
                   break;
                 case 7:
-                  statusStr = "WITHDRAW";
+                  statusStr = 'WITHDRAW';
                   break;
               }
 
-              if (!nft.tradeId) nft.tradeId = "";
-              $("#nfts").append(
+              if (!nft.tradeId) nft.tradeId = '';
+              $('#nfts').append(
                 '<tr><td><button type="button" onclick="copyToClipboard(\'' +
                   nft.ownerAddress +
-                  "')\">" +
+                  '\')">' +
                   nft.ownerAddress.substring(0, 10) +
                   '...</button></td><td><td><button type="button" onclick="copyToClipboard(\'' +
                   nft.tokenAddress +
-                  "')\">" +
+                  '\')">' +
                   nft.tokenAddress.substring(0, 10) +
-                  "...</button></td><td>" +
+                  '...</button></td><td>' +
                   nft.tokenId +
                   '</td><td><button type="button" onclick="copyToClipboard(\'' +
                   nft.tradeId +
-                  "')\">" +
+                  '\')">' +
                   nft.tradeId.substring(0, 10) +
-                  "...</button></td><td>" +
+                  '...</button></td><td>' +
                   statusStr +
-                  "</td></tr>"
+                  '</td></tr>',
               ); //add row to table with current time
             });
           },
         });
       }
 
-      window.addEventListener("load", async function () {
+      window.addEventListener('load', async function () {
         console.log(window);
         //ethereum
         if (window.klaytn) {
@@ -1672,79 +1566,51 @@
         }
         // Non-dapp browsers...
         else {
-          console.log(
-            "Non-Ethereum browser detected. You should consider trying MetaMask!"
-          );
+          console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
         }
       });
 
       function joinRoom(hash) {
-        $("#txStatus2").empty();
-        $("#txStatus2").append(
-          "<tr>" + "<th>hash</th>" + "<th>tx</th>" + "<th>status</th>" + "</tr>"
-        ); //add row to table with current time
+        $('#txStatus2').empty();
+        $('#txStatus2').append('<tr>' + '<th>hash</th>' + '<th>tx</th>' + '<th>status</th>' + '</tr>'); //add row to table with current time
 
-        $("#txStatus2").append(
-          "<tr>" +
-            "<td>" +
-            hash +
-            "</td>" +
-            "<td>none</td>" +
-            "<td>start</td>" +
-            "</tr>"
-        );
-        socket.emit("send", hash);
+        $('#txStatus2').append('<tr>' + '<td>' + hash + '</td>' + '<td>none</td>' + '<td>start</td>' + '</tr>');
+        socket.emit('send', hash);
 
-        socket.on("pending", function (msg) {
-          console.log("msg1", msg);
+        socket.on('pending', function (msg) {
+          console.log('msg1', msg);
           if (hash == msg.hash) {
-            $("#txStatus2").append(
-              "<tr>" +
-                "<td>" +
-                msg.hash +
-                "</td>" +
-                "<td>" +
-                msg.tx +
-                "</td>" +
-                "<td>pending</td>" +
-                "</tr>"
+            $('#txStatus2').append(
+              '<tr>' + '<td>' + msg.hash + '</td>' + '<td>' + msg.tx + '</td>' + '<td>pending</td>' + '</tr>',
             );
           }
         });
 
-        socket.on("result", function (msg) {
-          console.log("msg2", msg);
+        socket.on('result', function (msg) {
+          console.log('msg2', msg);
           if (hash == msg.hash) {
-            $("#txStatus2").append(
-              "<tr>" +
-                "<td>" +
+            $('#txStatus2').append(
+              '<tr>' +
+                '<td>' +
                 msg.hash +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 msg.txHash +
-                "</td>" +
-                "<td>" +
+                '</td>' +
+                '<td>' +
                 msg.result +
-                "</td>" +
-                "</tr>"
+                '</td>' +
+                '</tr>',
             );
           }
         });
 
-        socket.on("bridge", function (msg) {
-          console.log("bridge", msg);
+        socket.on('bridge', function (msg) {
+          console.log('bridge', msg);
           return;
           if (hash == msg.hash) {
-            $("#txStatus2").append(
-              "<tr>" +
-                "<td>" +
-                msg.hash +
-                "</td>" +
-                "<td>" +
-                msg.tx +
-                "</td>" +
-                "<td>pending</td>" +
-                "</tr>"
+            $('#txStatus2').append(
+              '<tr>' + '<td>' + msg.hash + '</td>' + '<td>' + msg.tx + '</td>' + '<td>pending</td>' + '</tr>',
             );
           }
         });
@@ -1752,20 +1618,10 @@
       function sign(cate, action, message, hash, hashType = 2) {
         actionHash = hash;
         joinRoom(hash);
-        $("#txStatus").empty();
-        $("#txStatus").append(
-          "<tr>" + "<th>hash</th>" + "<th>tx</th>" + "<th>status</th>" + "</tr>"
-        ); //add row to table with current time
+        $('#txStatus').empty();
+        $('#txStatus').append('<tr>' + '<th>hash</th>' + '<th>tx</th>' + '<th>status</th>' + '</tr>'); //add row to table with current time
 
-        $("#txStatus").append(
-          "<tr>" +
-            "<td>" +
-            hash +
-            "</td>" +
-            "<td>none</td>" +
-            "<td>start</td>" +
-            "</tr>"
-        );
+        $('#txStatus').append('<tr>' + '<td>' + hash + '</td>' + '<td>none</td>' + '<td>start</td>' + '</tr>');
 
         var from = klaytn.selectedAddress;
 
@@ -1773,8 +1629,8 @@
           .sign(message, window.klaytn.selectedAddress)
           .then((sig) => {
             $.ajax({
-              type: "POST",
-              url: requestUrl + "/sign/send",
+              type: 'POST',
+              url: requestUrl + '/sign/send',
               data: {
                 cate: cate,
                 msg: message,
@@ -1783,7 +1639,7 @@
                 hashType: hashType,
               },
               success: (res) => {
-                console.log("sign res", res);
+                console.log('sign res', res);
               },
             });
           })
@@ -1795,7 +1651,7 @@
         return;
 
         var params = [from, message];
-        var method = "personal_sign";
+        var method = 'personal_sign';
 
         web3.currentProvider.sendAsync(
           {
@@ -1810,8 +1666,8 @@
             }
 
             $.ajax({
-              type: "POST",
-              url: requestUrl + "/sign/send",
+              type: 'POST',
+              url: requestUrl + '/sign/send',
               data: {
                 cate: cate,
                 msg: message,
@@ -1820,7 +1676,7 @@
                 hashType: hashType,
               },
               success: (res) => {
-                console.log("sign res", res);
+                console.log('sign res', res);
               },
             });
 
@@ -1830,7 +1686,7 @@
             sig: result.result,
           });
         */
-          }
+          },
         );
       }
     </script>

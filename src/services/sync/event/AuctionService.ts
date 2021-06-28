@@ -1,98 +1,58 @@
-import { Service, Inject } from "typedi";
-import { Sale } from "../../../entities/Sale";
-import { NftItemDesc } from "../../../entities/NftItemDesc";
-import { Activity } from "../../../entities/Activity";
+import { Service, Inject } from 'typedi';
+import { Sale } from '../../../entities/Sale';
+import { NftItemDesc } from '../../../entities/NftItemDesc';
+import { Activity } from '../../../entities/Activity';
 
-import { LessThan } from "typeorm";
+import { LessThan } from 'typeorm';
 
-@Service("AuctionService")
+@Service('AuctionService')
 export class AuctionService {
   eventMap;
 
   constructor(
-    @Inject("logger") private logger,
-    @Inject("BulkService") private bulkService,
-    @Inject("AbiService") private abiService,
-    @Inject("constant") private constant,
-    @Inject("currency") private currency,
-    @Inject("NodeService") private nodeService,
-    @Inject("CommonService") private commonService
+    @Inject('logger') private logger,
+    @Inject('BulkService') private bulkService,
+    @Inject('AbiService') private abiService,
+    @Inject('constant') private constant,
+    @Inject('currency') private currency,
+    @Inject('NodeService') private nodeService,
+    @Inject('CommonService') private commonService,
   ) {
-    this.eventMap = this.abiService.getEventMap("auction-abi");
+    this.eventMap = this.abiService.getEventMap('auction-abi');
   }
 
-  public async handler(
-    blockNo,
-    eventIndex,
-    topicHash,
-    log,
-    blockDate,
-    callbackQueue
-  ) {
-    const eventInfo = this.eventMap.get(topicHash) || "";
-    const decodeParams = await this.abiService.getDecodeLog(
-      eventInfo["inputs"],
-      log
-    );
+  public async handler(blockNo, eventIndex, topicHash, log, blockDate, callbackQueue) {
+    const eventInfo = this.eventMap.get(topicHash) || '';
+    const decodeParams = await this.abiService.getDecodeLog(eventInfo['inputs'], log);
     const acceptEvent = [
-      "AuctionAdded",
-      "AuctionCompleted",
-      "AuctionCanceled",
-      "AuctionExpired",
-      "AuctionEdited",
-      "AuctionClosed",
-      "BiddingUpdated",
+      'AuctionAdded',
+      'AuctionCompleted',
+      'AuctionCanceled',
+      'AuctionExpired',
+      'AuctionEdited',
+      'AuctionClosed',
+      'BiddingUpdated',
     ];
     if (!acceptEvent.includes(eventInfo.name)) return;
 
     switch (eventInfo.name) {
-      case "AuctionAdded":
-        return await this.auctionAdded(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'AuctionAdded':
+        return await this.auctionAdded(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "AuctionCompleted":
-        return await this.auctionCompleted(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'AuctionCompleted':
+        return await this.auctionCompleted(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "AuctionCanceled":
-        return await this.auctionCanceled(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'AuctionCanceled':
+        return await this.auctionCanceled(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "AuctionExpired":
-        return await this.auctionExpired(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'AuctionExpired':
+        return await this.auctionExpired(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "AuctionEdited":
-        return await this.auctionEdited(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'AuctionEdited':
+        return await this.auctionEdited(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
-      case "BiddingUpdated":
-        return await this.biddingUpdated(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate
-        );
+      case 'BiddingUpdated':
+        return await this.biddingUpdated(blockNo, decodeParams, log.transactionHash, blockDate);
         break;
     }
   }
@@ -101,22 +61,17 @@ export class AuctionService {
   async auctionAdded(blockNo, params, txHash, blockDate) {
     var endTime = new Date(params.endTime * 1000);
 
-    var type = params.isInstantTrade
-      ? this.constant.TYPE.SALE.INSTANT_AUCTION
-      : this.constant.TYPE.SALE.NORMAL_AUCTION;
+    var type = params.isInstantTrade ? this.constant.TYPE.SALE.INSTANT_AUCTION : this.constant.TYPE.SALE.NORMAL_AUCTION;
     const nftDesc = await NftItemDesc.findOne({
-      select: ["name"],
+      select: ['name'],
       where: { tokenAddress: params.nftAddr, tokenId: params.tokenId },
     });
-    var tokenName = nftDesc && "name" in nftDesc ? nftDesc.name : "";
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.biddingToken,
-      params.minAmount
-    );
+    var tokenName = nftDesc && 'name' in nftDesc ? nftDesc.name : '';
+    const usdPrice = await this.commonService.convertUsdPrice(params.biddingToken, params.minAmount);
 
     //판매자 경매 활동내역 생성
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.AUCTION,
         status: this.constant.STATUS.AUCTION.START,
@@ -130,12 +85,12 @@ export class AuctionService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //경매 데이터 생성
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         id: params.auctionId,
         tokenAddress: params.nftAddr,
@@ -155,15 +110,15 @@ export class AuctionService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //팝니다 게시판 검색을 위한 게시글 종료시간 입력
     await this.bulkService.addData(blockNo, {
-      tableName: "nft_item",
+      tableName: 'nft_item',
       data: { endTime: endTime },
       where: { tokenAddress: params.nftAddr, tokenId: params.tokenId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     return params.auctionId;
@@ -172,15 +127,12 @@ export class AuctionService {
   //event AuctionCompleted(hash, auctionId, nftReceiverAddr, tokenReceiverAddr, nftAddr, tokenId, tokenAddr, tokenAmount);
   async auctionCompleted(blockNo, params, txHash, blockDate) {
     const auction = await Sale.findOne(params.auctionId);
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.tokenAddr,
-      params.tokenAmount
-    );
+    const usdPrice = await this.commonService.convertUsdPrice(params.tokenAddr, params.tokenAmount);
     const paidAmount = await this.nodeService.getPaidAmount(params.tokenAmount); //구매자 지불금액
 
     //판매자 경매 활동내역 종료
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.AUCTION.DONE,
         currency: params.tokenAddr,
@@ -194,12 +146,12 @@ export class AuctionService {
         tradeId: params.auctionId,
         eventType: this.constant.TYPE.EVENT.AUCTION,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //마지막 구매자 입찰 활동내역 종료
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.AUCTION.DONE,
         currency: params.tokenAddr,
@@ -211,12 +163,12 @@ export class AuctionService {
         eventType: this.constant.TYPE.EVENT.BID,
         status: this.constant.STATUS.BID.START,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //경매 종료
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         status: this.constant.STATUS.AUCTION.DONE,
         currentPrice: paidAmount,
@@ -226,23 +178,23 @@ export class AuctionService {
         updatedAt: blockDate,
       },
       where: { id: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //입찰 종료
     await this.bulkService.addData(blockNo, {
-      tableName: "auction_bid",
+      tableName: 'auction_bid',
       data: {
         status: this.constant.STATUS.BID.DONE,
         updatedAt: blockDate,
       },
       where: { id: params.auctionId, status: this.constant.STATUS.BID.START },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //판매자 토큰 입금 내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.TOKEN,
         status: this.constant.STATUS.TOKEN.DEPOSIT,
@@ -257,12 +209,12 @@ export class AuctionService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //구매자 토큰 출금 내역 추가
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         eventType: this.constant.TYPE.EVENT.TOKEN,
         status: this.constant.STATUS.TOKEN.WITHDRAW,
@@ -277,49 +229,47 @@ export class AuctionService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     //경매 종료시 nft item 가격 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "nft_item",
+      tableName: 'nft_item',
       data: {
         currency: params.tokenAddr,
         price: paidAmount,
         usdPrice: usdPrice,
       },
       where: { tokenAddress: auction.tokenAddress, tokenId: auction.tokenId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //거래 금액 release 처리
     await this.bulkService.addData(blockNo, {
-      tableName: "token_balance",
+      tableName: 'token_balance',
       data: {
-        lockAuctionAmount: () => "lockAuctionAmount - " + paidAmount,
+        lockAuctionAmount: () => 'lockAuctionAmount - ' + paidAmount,
       },
       where: {
         accountAddress: params.nftReceiverAddr,
         tokenAddress: params.tokenAddr,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //Ranking 데이터 업데이트
-    await this.bulkService.rankInBulk(
-      this.bulkService,
-      blockNo,
-      auction.tokenAddress,
-      usdPrice,
-      ["total", "week", "tradeCnt"]
-    );
+    await this.bulkService.rankInBulk(this.bulkService, blockNo, auction.tokenAddress, usdPrice, [
+      'total',
+      'week',
+      'tradeCnt',
+    ]);
   }
 
   //event AuctionCanceled(bytes32 hash, bytes32 auctionId, address auctionOwner);
   async auctionCanceled(blockNo, params, txHash, blockDate) {
     //판매자 경매 활동 내역 취소
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.AUCTION.CANCEL,
         txHash: txHash,
@@ -329,29 +279,29 @@ export class AuctionService {
         tradeId: params.auctionId,
         eventType: this.constant.TYPE.EVENT.AUCTION,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     //경매 취소
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         status: this.constant.STATUS.AUCTION.CANCEL,
         updatedAt: blockDate,
         lastTxHash: txHash,
       },
       where: { id: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "sale_expire",
+      tableName: 'sale_expire',
       data: {
         status: this.constant.STATUS.SALE_QUEUE.SUCCESS,
         txHash: txHash,
       },
       where: { id: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     return params.auctionId;
@@ -362,7 +312,7 @@ export class AuctionService {
   async auctionExpired(blockNo, params, txHash, blockDate) {
     //판매자 경매 활동 내역 만료처리
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         status: this.constant.STATUS.AUCTION.CANCEL,
         updatedAt: blockDate,
@@ -371,41 +321,39 @@ export class AuctionService {
       where: {
         tradeId: params.auctionId,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         status: this.constant.STATUS.AUCTION.CANCEL,
         updatedAt: blockDate,
         lastTxHash: txHash,
       },
       where: { id: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "sale_expire",
+      tableName: 'sale_expire',
       data: {
         status: this.constant.STATUS.SALE_QUEUE.SUCCESS,
         txHash: txHash,
       },
       where: { id: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   //event AuctionEdited(bytes32 hash, bytes32 auctionId, address auctionOwner, address biddingToken, uint minAmount, uint maxAmount, uint endTime, bool isInstantTrade);
   async auctionEdited(blockNo, params, txHash, blockDate) {
     var endTime = new Date(params.endTime * 1000);
-    var type = params.isInstantTrade
-      ? this.constant.TYPE.SALE.INSTANT_AUCTION
-      : this.constant.TYPE.SALE.NORMAL_AUCTION;
+    var type = params.isInstantTrade ? this.constant.TYPE.SALE.INSTANT_AUCTION : this.constant.TYPE.SALE.NORMAL_AUCTION;
 
     //판매자 경매 활동내역 txHash 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "activity",
+      tableName: 'activity',
       data: {
         txHash: txHash,
         updatedAt: blockDate,
@@ -414,11 +362,11 @@ export class AuctionService {
         tradeId: params.auctionId,
         accountAddress: params.auctionOwner,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         currency: params.biddingToken,
         currentPrice: params.minAmount,
@@ -429,28 +377,25 @@ export class AuctionService {
         lastTxHash: txHash,
       },
       where: { id: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
 
     await this.bulkService.addData(blockNo, {
-      tableName: "nft_item",
+      tableName: 'nft_item',
       data: {
         currency: params.biddingToken,
         price: params.minAmount,
         endTime: endTime,
       },
       where: { tradeId: params.auctionId },
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   //event BiddingUpdated(bytes32 hash, bytes32 auctionId, address tokenAddr, uint amount, address bidderAddr, uint biddingCount, uint endTime);
   async biddingUpdated(blockNo, params, txHash, blockDate) {
     const endTime = new Date(params.endTime * 1000);
-    const usdPrice = await this.commonService.convertUsdPrice(
-      params.tokenAddr,
-      params.amount
-    );
+    const usdPrice = await this.commonService.convertUsdPrice(params.tokenAddr, params.amount);
     const auction = await Sale.findOne({ id: params.auctionId });
     var status = this.constant.STATUS.BID.START;
 
@@ -464,7 +409,7 @@ export class AuctionService {
 
       //구매자 입찰 활동내역 추가
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.BUY,
           status: status,
@@ -479,12 +424,12 @@ export class AuctionService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     } else {
       //구매자 입찰 활동내역 추가
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.BID,
           status: status,
@@ -499,13 +444,13 @@ export class AuctionService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     //입찰내역 생성
     await this.bulkService.addData(blockNo, {
-      tableName: "auction_bid",
+      tableName: 'auction_bid',
       data: {
         id: params.hash,
         accountAddress: params.bidderAddr,
@@ -517,13 +462,13 @@ export class AuctionService {
         createdAt: blockDate,
         updatedAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
 
     if (params.biddingCount > 1) {
       //이전 입찰 활동내역 취소
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           status: this.constant.STATUS.BID.FAIL,
           txHash: txHash,
@@ -535,12 +480,12 @@ export class AuctionService {
           tradeId: params.auctionId,
           updatedAt: LessThan(blockDate),
         },
-        queryType: "update",
+        queryType: 'update',
       });
 
       //이전 입찰 내역 취소
       await this.bulkService.addData(blockNo, {
-        tableName: "auction_bid",
+        tableName: 'auction_bid',
         data: {
           status: this.constant.STATUS.BID.FAIL,
         },
@@ -548,24 +493,24 @@ export class AuctionService {
           auctionId: params.auctionId,
           bidIndex: Number(params.biddingCount) - 1,
         },
-        queryType: "update",
+        queryType: 'update',
       });
     }
 
     //경매글에 입찰 정보 업데이트
     await this.bulkService.addData(blockNo, {
-      tableName: "sale",
+      tableName: 'sale',
       data: {
         currentPrice: params.amount,
         lastTxHash: txHash,
         buyerAddress: params.bidderAddr,
-        participant: () => "participant+1",
+        participant: () => 'participant+1',
         endTime: endTime,
       },
       where: {
         id: params.auctionId,
       },
-      queryType: "update",
+      queryType: 'update',
     });
 
     return params.auctionId;

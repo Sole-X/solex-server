@@ -1,4 +1,4 @@
-import { BaseEntity } from "typeorm";
+import { BaseEntity } from 'typeorm';
 
 export class ParentEntity extends BaseEntity {
   static async insertIfNotExist(where) {
@@ -11,14 +11,7 @@ export class ParentEntity extends BaseEntity {
     }
   }
 
-  static async pagination(
-    page: any = 1,
-    limit: any = 10,
-    where,
-    order,
-    relation = [],
-    select = null
-  ) {
+  static async pagination(page: any = 1, limit: any = 10, where, order, relation = [], select = null) {
     const take = limit;
     const skip = (Number(page) - 1) * limit;
     const total = await this.count({
@@ -36,7 +29,7 @@ export class ParentEntity extends BaseEntity {
 
     items = items.reduce(function (result, element) {
       relation.forEach((res) => {
-        if ((res = "desc")) return;
+        if ((res = 'desc')) return;
         element[res].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
       });
       result.push(element);

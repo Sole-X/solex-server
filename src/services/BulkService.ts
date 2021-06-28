@@ -1,7 +1,7 @@
-import { Service, Inject } from "typedi";
-import { NftRank } from "../entities/NftRank";
-import { getRepository, In, Not, getConnection } from "typeorm";
-import { NftItem } from "../entities/NftItem";
+import { Service, Inject } from 'typedi';
+import { NftRank } from '../entities/NftRank';
+import { getRepository, In, Not, getConnection } from 'typeorm';
+import { NftItem } from '../entities/NftItem';
 
 export interface BulkData {
   tableName: string;
@@ -12,7 +12,7 @@ export interface BulkData {
   overwrite?: string[];
 }
 
-@Service("BulkService")
+@Service('BulkService')
 export class BulkService {
   insertQueue: Map<string, Map<string, Array<BulkData>>> = new Map();
   updateQueue: Map<string, Array<BulkData>> = new Map();
@@ -21,19 +21,19 @@ export class BulkService {
   expireQueue: Map<string, number> = new Map();
 
   constructor(
-    @Inject("logger") private logger,
-    @Inject("constant") private constant,
-    @Inject("CommonService") private commonService
+    @Inject('logger') private logger,
+    @Inject('constant') private constant,
+    @Inject('CommonService') private commonService,
   ) {}
 
   public addData(id, data: BulkData) {
     var strKey = String(id); //키 타입 string으로 고정
 
-    if (data.queryType == "insert") {
+    if (data.queryType == 'insert') {
       if (!this.insertQueue.has(strKey)) {
         var typeMap = new Map([[data.tableName, [data]]]);
         this.insertQueue.set(strKey, typeMap);
-        this.expireQueue.set(strKey + "insert", new Date().getTime());
+        this.expireQueue.set(strKey + 'insert', new Date().getTime());
       } else {
         let idArr = this.insertQueue.get(strKey);
         if (!idArr.has(data.tableName)) {
@@ -46,20 +46,20 @@ export class BulkService {
 
         this.insertQueue.set(strKey, idArr);
       }
-    } else if (data.queryType == "update") {
+    } else if (data.queryType == 'update') {
       if (!this.updateQueue.has(strKey)) {
         this.updateQueue.set(strKey, [data]);
-        this.expireQueue.set(strKey + "update", new Date().getTime());
+        this.expireQueue.set(strKey + 'update', new Date().getTime());
       } else {
         let bulkArr = this.updateQueue.get(strKey);
         bulkArr.push(data);
         this.updateQueue.set(strKey, bulkArr);
       }
-    } else if (data.queryType == "upsert") {
+    } else if (data.queryType == 'upsert') {
       if (!this.upsertQueue.has(strKey)) {
         var typeMap = new Map([[data.tableName, [data]]]);
         this.upsertQueue.set(strKey, typeMap);
-        this.expireQueue.set(strKey + "upsert", new Date().getTime());
+        this.expireQueue.set(strKey + 'upsert', new Date().getTime());
       } else {
         let idArr = this.upsertQueue.get(strKey);
         if (!idArr.has(data.tableName)) {
@@ -155,7 +155,7 @@ export class BulkService {
       await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();
-      this.logger.error("Transaction Err" + e.message);
+      this.logger.error('Transaction Err' + e.message);
       throw e;
     } finally {
       await queryRunner.release();
@@ -164,56 +164,53 @@ export class BulkService {
 
   async rankSyncInBulk(bulkService, blockNo) {
     const ownerCntresult = await getRepository(NftItem).query(
-      "SELECT tokenAddress,count(tokenAddress) as ownerCnt from " +
+      'SELECT tokenAddress,count(tokenAddress) as ownerCnt from ' +
         " (select tokenAddress,ownerAddress FROM nft_item WHERE status != '" +
         this.constant.STATUS.NFT.WITHDRAW +
         "' group by tokenAddress, ownerAddress ) " +
-        " AS T2 group by tokenAddress"
+        ' AS T2 group by tokenAddress',
     );
     const nftCntResult = await getRepository(NftItem).query(
-      "SELECT tokenAddress,count(*) AS cnt " +
-        "FROM nft_item WHERE nft_item.status != 7 GROUP BY tokenAddress"
+      'SELECT tokenAddress,count(*) AS cnt ' + 'FROM nft_item WHERE nft_item.status != 7 GROUP BY tokenAddress',
     );
 
     for (let i = 0; i < ownerCntresult.length; i++) {
       const nftCnt = nftCntResult[i].cnt ? nftCntResult[i].cnt : 0;
       await bulkService.addData(blockNo, {
-        tableName: "nft_rank",
+        tableName: 'nft_rank',
         data: { ownerCnt: ownerCntresult[i].ownerCnt, nftCnt: nftCnt },
         where: { tokenAddress: ownerCntresult[i].tokenAddress },
-        queryType: "update",
+        queryType: 'update',
       });
     }
 
     await bulkService.addData(blockNo, {
-      tableName: "nft_rank",
+      tableName: 'nft_rank',
       data: {
-        change: () =>
-          "IF(beforeWeek>0,(((week - beforeWeek) / beforeWeek)*100),100) ",
-        avgPrice: () => "IF(tradeCnt>0,total / tradeCnt,0)",
+        change: () => 'IF(beforeWeek>0,(((week - beforeWeek) / beforeWeek)*100),100) ',
+        avgPrice: () => 'IF(tradeCnt>0,total / tradeCnt,0)',
       },
       where: {},
-      queryType: "update",
+      queryType: 'update',
     });
   }
 
   async rankInBulk(bulkService, blockNo, tokenAddress, usdPrice, option = []) {
     var data = { tokenAddress: tokenAddress };
 
-    if (option.includes("total") && usdPrice > 0) {
-      data["total"] = () => "total+" + usdPrice;
+    if (option.includes('total') && usdPrice > 0) {
+      data['total'] = () => 'total+' + usdPrice;
     }
 
-    if (option.includes("tradeCnt")) {
-      data["tradeCnt"] = () => "tradeCnt+1";
+    if (option.includes('tradeCnt')) {
+      data['tradeCnt'] = () => 'tradeCnt+1';
     }
 
-    if (option.includes("nftCntPlus") || option.includes("nftCntMinus")) {
-      data["nftCnt"] = () =>
-        option.includes("nftCntPlus") ? "nftCnt+1" : "nftCnt-1";
+    if (option.includes('nftCntPlus') || option.includes('nftCntMinus')) {
+      data['nftCnt'] = () => (option.includes('nftCntPlus') ? 'nftCnt+1' : 'nftCnt-1');
     }
 
-    if (option.includes("week") && usdPrice > 0) {
+    if (option.includes('week') && usdPrice > 0) {
       const nftRank = await NftRank.findOne(tokenAddress);
 
       const year = new Date().getFullYear();
@@ -225,27 +222,27 @@ export class BulkService {
         if (nftRank) week = Number(nftRank.week);
 
         await bulkService.addData(blockNo, {
-          tableName: "nft_rank",
+          tableName: 'nft_rank',
           data: {
             tokenAddress: tokenAddress,
             dateKey: dateKey,
             week: 0,
             beforeWeek: week,
           },
-          queryType: "upsert",
-          conflict_target: ["tokenAddress"],
-          overwrite: ["dateKey", "week", "beforeWeek"],
+          queryType: 'upsert',
+          conflict_target: ['tokenAddress'],
+          overwrite: ['dateKey', 'week', 'beforeWeek'],
         });
       }
-      data["week"] = () => "week+" + usdPrice;
+      data['week'] = () => 'week+' + usdPrice;
     }
 
     if (Object.keys(data).length > 1) {
       await bulkService.addData(blockNo, {
-        tableName: "nft_rank",
+        tableName: 'nft_rank',
         data: data,
         where: { tokenAddress: tokenAddress },
-        queryType: "update",
+        queryType: 'update',
       });
     }
   }

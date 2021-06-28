@@ -1,11 +1,11 @@
-import { Column, Entity } from "typeorm";
-import { ParentEntity } from "./ParentEntity";
+import { Column, Entity } from 'typeorm';
+import { ParentEntity } from './ParentEntity';
 
-@Entity("block")
+@Entity('block')
 export class Block extends ParentEntity {
-  @Column("bigint", { primary: true, name: "blockNumber", unsigned: true })
+  @Column('bigint', { primary: true, name: 'blockNumber', unsigned: true })
   blockNumber: string;
 
-  @Column("tinyint", { name: "version", unsigned: true })
+  @Column('tinyint', { name: 'version', unsigned: true })
   version: number;
 }

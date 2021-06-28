@@ -1,11 +1,6 @@
-import {
-  EntitySubscriberInterface,
-  EventSubscriber,
-  InsertEvent,
-  UpdateEvent,
-} from "typeorm";
-import { Agreement } from "../Agreement";
-import { AgreementLog } from "../AgreementLog";
+import { EntitySubscriberInterface, EventSubscriber, InsertEvent, UpdateEvent } from 'typeorm';
+import { Agreement } from '../Agreement';
+import { AgreementLog } from '../AgreementLog';
 
 @EventSubscriber()
 export class PostSubscriber implements EntitySubscriberInterface {

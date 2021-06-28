@@ -1,91 +1,60 @@
-import { Service, Inject } from "typedi";
-import { Activity } from "../../../entities/Activity";
-import { TokenInfo } from "../../../entities/TokenInfo";
-import { NftInfo } from "../../../entities/NftInfo";
+import { Service, Inject } from 'typedi';
+import { Activity } from '../../../entities/Activity';
+import { TokenInfo } from '../../../entities/TokenInfo';
+import { NftInfo } from '../../../entities/NftInfo';
 
-@Service("EthVaultService")
+@Service('EthVaultService')
 export class EthVaultService {
   eventMap;
 
   constructor(
-    @Inject("logger") private logger,
-    @Inject("BulkService") private bulkService,
-    @Inject("AbiService") private abiService,
-    @Inject("constant") private constant,
-    @Inject("contractAddress") private contractAddress,
-    @Inject("SocketService") private socketService
+    @Inject('logger') private logger,
+    @Inject('BulkService') private bulkService,
+    @Inject('AbiService') private abiService,
+    @Inject('constant') private constant,
+    @Inject('contractAddress') private contractAddress,
+    @Inject('SocketService') private socketService,
   ) {
-    this.eventMap = this.abiService.getEventMap("ethvault-abi");
+    this.eventMap = this.abiService.getEventMap('ethvault-abi');
   }
 
   public async handler(blockNo, topicHash, log, blockDate, callbackQueue) {
-    const eventInfo = this.eventMap.get(topicHash) || "";
+    const eventInfo = this.eventMap.get(topicHash) || '';
 
-    const acceptEvent = ["Deposit", "DepositNFT", "Withdraw", "WithdrawNFT"];
+    const acceptEvent = ['Deposit', 'DepositNFT', 'Withdraw', 'WithdrawNFT'];
 
     if (!acceptEvent.includes(eventInfo.name)) return;
 
-    const decodeParams = await this.abiService.getDecodeLog(
-      eventInfo["inputs"],
-      log
-    );
+    const decodeParams = await this.abiService.getDecodeLog(eventInfo['inputs'], log);
 
     const data = decodeParams.data
       ? await this.abiService.getDecodeParameters(
           [
             {
-              name: "accountAddress",
-              type: "address",
+              name: 'accountAddress',
+              type: 'address',
             },
             {
-              name: "hash",
-              type: "bytes32",
+              name: 'hash',
+              type: 'bytes32',
             },
           ],
-          decodeParams.data
+          decodeParams.data,
         )
-      : ["", ""];
+      : ['', ''];
 
     switch (eventInfo.name) {
-      case "Deposit":
-        return await this.deposit(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate,
-          data,
-          callbackQueue
-        );
+      case 'Deposit':
+        return await this.deposit(blockNo, decodeParams, log.transactionHash, blockDate, data, callbackQueue);
         break;
-      case "DepositNFT":
-        return await this.depositNFT(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate,
-          data,
-          callbackQueue
-        );
+      case 'DepositNFT':
+        return await this.depositNFT(blockNo, decodeParams, log.transactionHash, blockDate, data, callbackQueue);
         break;
-      case "Withdraw":
-        return await this.withdraw(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate,
-          data,
-          callbackQueue
-        );
+      case 'Withdraw':
+        return await this.withdraw(blockNo, decodeParams, log.transactionHash, blockDate, data, callbackQueue);
         break;
-      case "WithdrawNFT":
-        return await this.withdrawNFT(
-          blockNo,
-          decodeParams,
-          log.transactionHash,
-          blockDate,
-          data,
-          callbackQueue
-        );
+      case 'WithdrawNFT':
+        return await this.withdrawNFT(blockNo, decodeParams, log.transactionHash, blockDate, data, callbackQueue);
         break;
     }
   }
@@ -94,8 +63,7 @@ export class EthVaultService {
   async deposit(blockNo, params, txHash, blockDate, data, callbackQueue) {
     //solex reserve contract check
     if (!params.toAddr) return;
-    if (params.toAddr.toLowerCase() != this.contractAddress["ReserveContract"])
-      return;
+    if (params.toAddr.toLowerCase() != this.contractAddress['ReserveContract']) return;
 
     const toOther = params.fromAddr != data[0] ? true : false;
     const activity = await Activity.findOne({
@@ -115,7 +83,7 @@ export class EthVaultService {
       });
       if (!otherActivity) {
         await this.bulkService.addData(blockNo, {
-          tableName: "activity",
+          tableName: 'activity',
           data: {
             eventType: this.constant.TYPE.EVENT.TOKEN,
             status: this.constant.STATUS.TOKEN.VAULT,
@@ -130,7 +98,7 @@ export class EthVaultService {
             createdAt: blockDate,
             updatedAt: blockDate,
           },
-          queryType: "insert",
+          queryType: 'insert',
         });
       }
     }
@@ -138,7 +106,7 @@ export class EthVaultService {
     //activity 데이터가 없을때만
     if (!activity) {
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.TOKEN,
           status: this.constant.STATUS.TOKEN.VAULT,
@@ -153,14 +121,14 @@ export class EthVaultService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     await this.bulkService.addData(blockNo, {
-      tableName: "bridge_tx",
+      tableName: 'bridge_tx',
       data: {
-        platform: "ETH",
+        platform: 'ETH',
         hashId: data[1],
         tokenAddress: tokenAddr,
         depositId: params.depositId,
@@ -173,14 +141,14 @@ export class EthVaultService {
         status: 1,
         createdAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
     this.addCallback(
       blockNo,
       () => {
-        this.socketService.bridge(data[1], params.depositId, txHash, "vault");
+        this.socketService.bridge(data[1], params.depositId, txHash, 'vault');
       },
-      callbackQueue
+      callbackQueue,
     );
 
     return;
@@ -189,8 +157,7 @@ export class EthVaultService {
   //event DepositNFT(string toChain, address fromAddr, bytes toAddr, address token, uint tokenId, uint amount, uint depositId, bytes data);
   async depositNFT(blockNo, params, txHash, blockDate, data, callbackQueue) {
     if (!params.toAddr) return;
-    if (params.toAddr.toLowerCase() != this.contractAddress["ReserveContract"])
-      return;
+    if (params.toAddr.toLowerCase() != this.contractAddress['ReserveContract']) return;
 
     const toOther = params.fromAddr != data[0] ? true : false;
     const activity = await Activity.findOne({
@@ -211,7 +178,7 @@ export class EthVaultService {
       });
       if (!otherActivity) {
         await this.bulkService.addData(blockNo, {
-          tableName: "activity",
+          tableName: 'activity',
           data: {
             eventType: this.constant.TYPE.EVENT.NFT,
             status: this.constant.STATUS.NFT.VAULT,
@@ -226,7 +193,7 @@ export class EthVaultService {
             createdAt: blockDate,
             updatedAt: blockDate,
           },
-          queryType: "insert",
+          queryType: 'insert',
         });
       }
     }
@@ -234,7 +201,7 @@ export class EthVaultService {
     //activity 데이터가 없을때만
     if (!activity) {
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.NFT,
           status: this.constant.STATUS.NFT.VAULT,
@@ -249,14 +216,14 @@ export class EthVaultService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     await this.bulkService.addData(blockNo, {
-      tableName: "bridge_tx",
+      tableName: 'bridge_tx',
       data: {
-        platform: "ETH",
+        platform: 'ETH',
         hashId: data[1],
         tokenAddress: tokenAddr,
         depositId: params.depositId,
@@ -269,14 +236,14 @@ export class EthVaultService {
         status: 1,
         createdAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
     this.addCallback(
       blockNo,
       () => {
-        this.socketService.bridge(data[1], params.depositId, txHash, "vault");
+        this.socketService.bridge(data[1], params.depositId, txHash, 'vault');
       },
-      callbackQueue
+      callbackQueue,
     );
 
     return;
@@ -285,10 +252,7 @@ export class EthVaultService {
   //event Withdraw(string fromChain, bytes fromAddr, bytes toAddr, bytes token, bytes32[] bytes32s, uint[] uints, bytes data);
   async withdraw(blockNo, params, txHash, blockDate, data, callbackQueue) {
     if (!params.fromAddr) return;
-    if (
-      params.fromAddr.toLowerCase() != this.contractAddress["ReserveContract"]
-    )
-      return;
+    if (params.fromAddr.toLowerCase() != this.contractAddress['ReserveContract']) return;
 
     const activity = await Activity.findOne({
       where: { tradeId: data[1], bridgeId: params.uints[2] },
@@ -300,7 +264,7 @@ export class EthVaultService {
 
     if (activity) {
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           txHash: txHash,
           status: this.constant.STATUS.TOKEN.WITHDRAW,
@@ -310,11 +274,11 @@ export class EthVaultService {
           tradeId: data[1],
           bridgeId: params.uints[2],
         },
-        queryType: "update",
+        queryType: 'update',
       });
     } else {
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.TOKEN,
           status: this.constant.STATUS.TOKEN.WITHDRAW,
@@ -327,14 +291,14 @@ export class EthVaultService {
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     await this.bulkService.addData(blockNo, {
-      tableName: "bridge_tx",
+      tableName: 'bridge_tx',
       data: {
-        platform: "ETH",
+        platform: 'ETH',
         hashId: data[1],
         tokenAddress: params.token,
         amount: params.uints[0],
@@ -347,24 +311,21 @@ export class EthVaultService {
         status: 1,
         createdAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
     this.addCallback(
       blockNo,
       () => {
-        this.socketService.bridge(data[1], params.uints[2], txHash, "send");
+        this.socketService.bridge(data[1], params.uints[2], txHash, 'send');
       },
-      callbackQueue
+      callbackQueue,
     );
   }
 
   //event WithdrawNFT(string fromChain, bytes fromAddr, bytes toAddr, bytes token, bytes32[] bytes32s, uint[] uints, bytes data);
   async withdrawNFT(blockNo, params, txHash, blockDate, data, callbackQueue) {
     if (!params.fromAddr) return;
-    if (
-      params.fromAddr.toLowerCase() != this.contractAddress["ReserveContract"]
-    )
-      return;
+    if (params.fromAddr.toLowerCase() != this.contractAddress['ReserveContract']) return;
 
     const activity = await Activity.findOne({
       where: { tradeId: data[1], bridgeId: params.uints[2] },
@@ -376,41 +337,41 @@ export class EthVaultService {
 
     if (activity) {
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           txHash: txHash,
           status: this.constant.STATUS.NFT.WITHDRAW,
           updatedAt: blockDate,
         },
         where: {
-          tradeId: data["1"],
+          tradeId: data['1'],
           bridgeId: params.uints[2],
         },
-        queryType: "update",
+        queryType: 'update',
       });
     } else {
       await this.bulkService.addData(blockNo, {
-        tableName: "activity",
+        tableName: 'activity',
         data: {
           eventType: this.constant.TYPE.EVENT.NFT,
           status: this.constant.STATUS.NFT.WITHDRAW,
           tokenAddress: tokenAddr,
-          tradeId: data["1"],
+          tradeId: data['1'],
           txHash: txHash,
           tokenId: params.uints[1],
-          accountAddress: data["0"],
+          accountAddress: data['0'],
           bridgeId: params.uints[2],
           createdAt: blockDate,
           updatedAt: blockDate,
         },
-        queryType: "insert",
+        queryType: 'insert',
       });
     }
 
     await this.bulkService.addData(blockNo, {
-      tableName: "bridge_tx",
+      tableName: 'bridge_tx',
       data: {
-        platform: "ETH",
+        platform: 'ETH',
         hashId: data[1],
         tokenAddress: params.token,
         tokenId: params.uints[1],
@@ -423,14 +384,14 @@ export class EthVaultService {
         status: 1,
         createdAt: blockDate,
       },
-      queryType: "insert",
+      queryType: 'insert',
     });
     this.addCallback(
       blockNo,
       () => {
-        this.socketService.bridge(data[1], params.uints[2], txHash, "send");
+        this.socketService.bridge(data[1], params.uints[2], txHash, 'send');
       },
-      callbackQueue
+      callbackQueue,
     );
   }
 

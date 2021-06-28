@@ -1,27 +1,27 @@
-import { TokenInfo } from "../entities/TokenInfo";
-import { NftInfo } from "../entities/NftInfo";
-import { NftItem } from "../entities/NftItem";
-import { Category } from "../entities/Category";
-import { Variable } from "../entities/Variable";
-import { Sale } from "../entities/Sale";
-import { Newsletter } from "../entities/Newsletter";
-import { Buy } from "../entities/Buy";
+import { TokenInfo } from '../entities/TokenInfo';
+import { NftInfo } from '../entities/NftInfo';
+import { NftItem } from '../entities/NftItem';
+import { Category } from '../entities/Category';
+import { Variable } from '../entities/Variable';
+import { Sale } from '../entities/Sale';
+import { Newsletter } from '../entities/Newsletter';
+import { Buy } from '../entities/Buy';
 
-import { Container } from "typedi";
-import { RedisService } from "../services/RedisService";
-import banWord from "../config/banWord";
-import { getRepository, In, Not } from "typeorm";
+import { Container } from 'typedi';
+import { RedisService } from '../services/RedisService';
+import banWord from '../config/banWord';
+import { getRepository, In, Not } from 'typeorm';
 
 exports.getStakingInfo = async function (req, res, next) {
-  const nodeService: any = Container.get("NodeService");
-  const contractAddress: any = Container.get("contractAddress");
+  const nodeService: any = Container.get('NodeService');
+  const contractAddress: any = Container.get('contractAddress');
 
   try {
     var result = {};
 
     const variable = await Variable.find({
       where: {
-        key: In(["totalStaking", "totalReward"]),
+        key: In(['totalStaking', 'totalReward']),
       },
     });
 
@@ -32,13 +32,11 @@ exports.getStakingInfo = async function (req, res, next) {
     });
 
     for (let i = 0; i < variable.length; i++) {
-      if (variable[i].key == "totalStaking")
-        result["totalStaking"] = variable[i].value;
-      if (variable[i].key == "totalReward")
-        result["totalReward"] = variable[i].value;
+      if (variable[i].key == 'totalStaking') result['totalStaking'] = variable[i].value;
+      if (variable[i].key == 'totalReward') result['totalReward'] = variable[i].value;
     }
-    result["trixPrice"] = tokenInfo.usdPrice;
-    result["totalSupply"] = "9999982296000000000000000000";
+    result['trixPrice'] = tokenInfo.usdPrice;
+    result['totalSupply'] = '9999982296000000000000000000';
 
     return res.status(200).json(result);
   } catch (e) {
@@ -47,22 +45,22 @@ exports.getStakingInfo = async function (req, res, next) {
 };
 
 exports.getWhitelist = async function (req, res, next) {
-  const redisService: RedisService = Container.get("RedisService");
-  const nodeService: any = Container.get("NodeService");
-  const commonService: any = Container.get("CommonService");
-  const constant: any = Container.get("constant");
+  const redisService: RedisService = Container.get('RedisService');
+  const nodeService: any = Container.get('NodeService');
+  const commonService: any = Container.get('CommonService');
+  const constant: any = Container.get('constant');
 
   try {
     var nfts = await NftInfo.find();
-    nfts = await commonService.convertStatusStr(nfts, "WHITELIST");
+    nfts = await commonService.convertStatusStr(nfts, 'WHITELIST');
     var tokens = await TokenInfo.find();
-    tokens = await commonService.convertStatusStr(tokens, "WHITELIST");
+    tokens = await commonService.convertStatusStr(tokens, 'WHITELIST');
 
-    var fee = await redisService.get("fee");
+    var fee = await redisService.get('fee');
     if (!fee) {
       const feeInfo = await nodeService.getFeeInfo();
       fee = (Number(feeInfo.numer) / Number(feeInfo.denom)) * 100;
-      await redisService.set("fee", fee, 100);
+      await redisService.set('fee', fee, 100);
     }
 
     return res.status(200).json({ nfts, tokens, fee });
@@ -72,15 +70,15 @@ exports.getWhitelist = async function (req, res, next) {
 };
 
 exports.getSideInfo = async function (req, res, next) {
-  const redisService: RedisService = Container.get("RedisService");
-  const constant: any = Container.get("constant");
+  const redisService: RedisService = Container.get('RedisService');
+  const constant: any = Container.get('constant');
 
   try {
-    const nftCnt = await redisService.hgetall("nftCnt");
+    const nftCnt = await redisService.hgetall('nftCnt');
     const pubRst = await getRepository(NftItem)
       .createQueryBuilder()
-      .select("publisher")
-      .where({ publisher: Not("") })
+      .select('publisher')
+      .where({ publisher: Not('') })
       .distinct(true)
       .limit(5)
       .execute();
@@ -89,21 +87,15 @@ exports.getSideInfo = async function (req, res, next) {
     if (nftCnt && Object.keys(nftCnt).length > 1) {
       result = nftCnt;
     } else {
-      result["nftCntAuction"] = await Sale.count({
-        type: In([
-          constant.TYPE.SALE.NORMAL_AUCTION,
-          constant.TYPE.SALE.INSTANT_AUCTION,
-        ]),
+      result['nftCntAuction'] = await Sale.count({
+        type: In([constant.TYPE.SALE.NORMAL_AUCTION, constant.TYPE.SALE.INSTANT_AUCTION]),
         status: In([constant.STATUS.SALE.START]),
       });
-      result["nftCntSell"] = await Sale.count({
-        type: In([
-          constant.TYPE.SALE.DIRECT_SELL,
-          constant.TYPE.SALE.NEGOTIABLE_SELL,
-        ]),
+      result['nftCntSell'] = await Sale.count({
+        type: In([constant.TYPE.SALE.DIRECT_SELL, constant.TYPE.SALE.NEGOTIABLE_SELL]),
         status: In([constant.STATUS.SALE.START]),
       });
-      result["nftCntDone"] = await Sale.count({
+      result['nftCntDone'] = await Sale.count({
         type: In([
           constant.TYPE.SALE.NORMAL_AUCTION,
           constant.TYPE.SALE.INSTANT_AUCTION,
@@ -113,15 +105,15 @@ exports.getSideInfo = async function (req, res, next) {
         status: In([constant.STATUS.SALE.DONE]),
       });
 
-      result["nftCntBuy"] = await Buy.count({
+      result['nftCntBuy'] = await Buy.count({
         status: In([constant.STATUS.BUY.START]),
       });
 
-      result["nftCntBuyDone"] = await Buy.count({
+      result['nftCntBuyDone'] = await Buy.count({
         status: In([constant.STATUS.BUY.DONE]),
       });
-      var table = ["buy", "sale"];
-      var query = "SELECT ";
+      var table = ['buy', 'sale'];
+      var query = 'SELECT ';
 
       //카테고리 카운트 쿼리
       const nftCate = Object.keys(constant.TOKEN_CATE);
@@ -131,18 +123,14 @@ exports.getSideInfo = async function (req, res, next) {
         });
         const cateAddrs = cateAddrArr.map((arr) => arr.tokenAddress);
         if (cateAddrs.length > 0) {
-          query += " SUM( CASE WHEN tokenAddress In (";
+          query += ' SUM( CASE WHEN tokenAddress In (';
           for (let j = 0; j < cateAddrs.length; j++) {
             query += " '" + cateAddrs[j] + "',";
           }
-          query =
-            query.slice(0, query.length - 1) +
-            ") THEN 1 ELSE 0 END) AS {table}Cate" +
-            nftCate[i] +
-            ",";
+          query = query.slice(0, query.length - 1) + ') THEN 1 ELSE 0 END) AS {table}Cate' + nftCate[i] + ',';
         } else {
-          result["saleCate" + nftCate[i]] = 0;
-          result["buyCate" + nftCate[i]] = 0;
+          result['saleCate' + nftCate[i]] = 0;
+          result['buyCate' + nftCate[i]] = 0;
         }
       }
 
@@ -156,7 +144,7 @@ exports.getSideInfo = async function (req, res, next) {
           nftInfos[i].tokenAddress +
           "' THEN 1 ELSE 0 END) AS {table}Collection" +
           nftInfos[i].symbol +
-          ",";
+          ',';
       }
 
       //통화 카운트 쿼리
@@ -169,16 +157,16 @@ exports.getSideInfo = async function (req, res, next) {
           tokenInfos[i].tokenAddress +
           "'  THEN 1 ELSE 0 END) AS {table}Currency" +
           tokenInfos[i].symbol +
-          ",";
+          ',';
       }
 
       query =
         query.slice(0, query.length - 1) +
-        " FROM {table} WHERE status In (" +
+        ' FROM {table} WHERE status In (' +
         constant.STATUS.BUY.START +
-        "," +
+        ',' +
         constant.STATUS.BUY.DONE +
-        ") ";
+        ') ';
 
       for (let i = 0; i < table.length; i++) {
         const queryResult = query.replace(/{table}/gi, table[i]);
@@ -187,8 +175,8 @@ exports.getSideInfo = async function (req, res, next) {
           result[key] = Number(data[key]);
         });
       }
-      await redisService.hmset("nftCnt", result);
-      redisService.expire("nftCnt", 60);
+      await redisService.hmset('nftCnt', result);
+      redisService.expire('nftCnt', 60);
     }
 
     return res.status(200).json({ nftCnt: result, pubs: pubs });
@@ -198,7 +186,7 @@ exports.getSideInfo = async function (req, res, next) {
 };
 
 exports.sendMail = async function (req, res, next) {
-  const mailService: any = Container.get("MailService");
+  const mailService: any = Container.get('MailService');
 
   const tokenAddr = req.body.tokenAddress;
   const tokenId = req.body.tokenId;
@@ -215,14 +203,13 @@ exports.sendMail = async function (req, res, next) {
 
 exports.nameCheck = async function (req, res, next) {
   var username = req.params.username;
-  username = username.replace(/(\s*)/g, "");
+  username = username.replace(/(\s*)/g, '');
 
   try {
     for (var i = 0; i < banWord.length; i++) {
-      if (username.indexOf(banWord[i]) > -1)
-        throw Error("'" + banWord[i] + "' is not valid");
+      if (username.indexOf(banWord[i]) > -1) throw Error("'" + banWord[i] + "' is not valid");
     }
-    return res.status(200).json({ msg: "OK" });
+    return res.status(200).json({ msg: 'OK' });
   } catch (e) {
     return next(e);
   }
@@ -234,14 +221,14 @@ exports.registNewsletter = async function (req, res, next) {
   try {
     await Newsletter.insertIfNotExist({ email: email });
 
-    return res.status(200).json({ msg: "success" });
+    return res.status(200).json({ msg: 'success' });
   } catch (e) {
     return next(e);
   }
 };
 
 exports.sendNewsletter = async function (req, res, next) {
-  const mailService: any = Container.get("MailService");
+  const mailService: any = Container.get('MailService');
 
   const templateId = req.body.templateId;
 

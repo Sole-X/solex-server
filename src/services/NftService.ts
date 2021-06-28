@@ -1,22 +1,22 @@
-import { Service, Inject } from "typedi";
-import { getRepository, In, Not } from "typeorm";
-import { Sale } from "../entities/Sale";
-import { SellNego } from "../entities/SellNego";
-import { AuctionBid } from "../entities/AuctionBid";
-import { Buy } from "../entities/Buy";
-import { NftLiked } from "../entities/NftLiked";
-import { NftItem } from "../entities/NftItem";
-import { NftItemDesc } from "../entities/NftItemDesc";
-import { constant, find } from "lodash";
-const rp = require("request-promise");
+import { Service, Inject } from 'typedi';
+import { getRepository, In, Not } from 'typeorm';
+import { Sale } from '../entities/Sale';
+import { SellNego } from '../entities/SellNego';
+import { AuctionBid } from '../entities/AuctionBid';
+import { Buy } from '../entities/Buy';
+import { NftLiked } from '../entities/NftLiked';
+import { NftItem } from '../entities/NftItem';
+import { NftItemDesc } from '../entities/NftItemDesc';
+import { constant, find } from 'lodash';
+const rp = require('request-promise');
 
-@Service("NftService")
+@Service('NftService')
 export class NftService {
   constructor(
-    @Inject("logger") private logger,
-    @Inject("constant") private constant,
-    @Inject("CommonService") private commonService,
-    @Inject("NodeService") private nodeService
+    @Inject('logger') private logger,
+    @Inject('constant') private constant,
+    @Inject('CommonService') private commonService,
+    @Inject('NodeService') private nodeService,
   ) {}
 
   //nft 배열에 관련 데이터 bind
@@ -25,28 +25,26 @@ export class NftService {
 
     for (let i = 0; i < datas.length; i++) {
       if (datas[i].tokenAddress && datas[i].tokenId)
-        nftKeys.push(
-          "('" + datas[i].tokenAddress + "','" + datas[i].tokenId + "')"
-        );
+        nftKeys.push("('" + datas[i].tokenAddress + "','" + datas[i].tokenId + "')");
     }
 
     if (nftKeys.length < 1) return datas;
-    const nftKeysStr = "(" + nftKeys.join(",") + ")";
+    const nftKeysStr = '(' + nftKeys.join(',') + ')';
 
     var query = getRepository(NftItem)
       .createQueryBuilder()
-      .where("(NftItem.tokenAddress, NftItem.tokenId) In " + nftKeysStr);
-    if (desc) query.leftJoinAndSelect("NftItem.desc", "desc");
+      .where('(NftItem.tokenAddress, NftItem.tokenId) In ' + nftKeysStr);
+    if (desc) query.leftJoinAndSelect('NftItem.desc', 'desc');
     const nftArr = await query.getMany();
 
     const nfts = await nftArr.reduce(function (result, data) {
-      result[data.tokenAddress + "," + data.tokenId] = data;
+      result[data.tokenAddress + ',' + data.tokenId] = data;
       return result;
     }, {});
 
     datas = await datas.reduce(function (result, data) {
-      if (data.tokenAddress + "," + data.tokenId in nfts)
-        data["nftInfo"] = nfts[data.tokenAddress + "," + data.tokenId];
+      if (data.tokenAddress + ',' + data.tokenId in nfts)
+        data['nftInfo'] = nfts[data.tokenAddress + ',' + data.tokenId];
       result.push(data);
       return result;
     }, []);
@@ -55,7 +53,7 @@ export class NftService {
   }
 
   async bindInfo(nfts: any[], option, params: any = {}) {
-    if (option.includes("trade") && nfts.length > 0) {
+    if (option.includes('trade') && nfts.length > 0) {
       const tradeIds = nfts.reduce(function (result, nft) {
         if (nft && nft.tradeId) result.push(nft.tradeId);
         return result;
@@ -63,14 +61,11 @@ export class NftService {
 
       const sales = await Sale.find({
         where: { id: In(tradeIds) },
-        relations: ["bids", "negos"],
+        relations: ['bids', 'negos'],
       });
       const saleInfo = sales.reduce((result, element) => {
         if (Number(element.usdPrice) <= 0)
-          element.usdPrice = this.commonService.convertMaxUnit(
-            element.tokenAddress,
-            element.basePrice
-          );
+          element.usdPrice = this.commonService.convertMaxUnit(element.tokenAddress, element.basePrice);
         result[element.id] = element;
         return result;
       }, {});
@@ -78,16 +73,14 @@ export class NftService {
       nfts = await nfts.reduce((result, element) => {
         if (element.tradeId && element.tradeId in saleInfo) {
           if (
-            saleInfo[element.tradeId].type ==
-              this.constant.TYPE.SALE.NORMAL_AUCTION ||
-            saleInfo[element.tradeId].type ==
-              this.constant.TYPE.SALE.INSTANT_AUCTION
+            saleInfo[element.tradeId].type == this.constant.TYPE.SALE.NORMAL_AUCTION ||
+            saleInfo[element.tradeId].type == this.constant.TYPE.SALE.INSTANT_AUCTION
           ) {
-            element["auction"] = saleInfo[element.tradeId];
-            element["participation"] = saleInfo[element.tradeId].bids.length;
+            element['auction'] = saleInfo[element.tradeId];
+            element['participation'] = saleInfo[element.tradeId].bids.length;
           } else {
-            element["sell"] = saleInfo[element.tradeId];
-            element["participation"] = saleInfo[element.tradeId].negos.length;
+            element['sell'] = saleInfo[element.tradeId];
+            element['participation'] = saleInfo[element.tradeId].negos.length;
           }
         }
 
@@ -96,17 +89,17 @@ export class NftService {
       }, []);
     }
 
-    if (option.includes("like") && params.connectAddr && nfts.length > 0) {
+    if (option.includes('like') && params.connectAddr && nfts.length > 0) {
       const accountAddr = params.connectAddr;
-      if (accountAddr != "") {
+      if (accountAddr != '') {
         const likeds = await NftLiked.find({
-          select: ["tradeId"],
+          select: ['tradeId'],
           where: { accountAddress: accountAddr },
         });
         const likeMap = likeds.map((liked) => liked.tradeId);
 
         nfts = nfts.reduce(function (result, element) {
-          element["like"] = likeMap.includes(element.id) ? true : false;
+          element['like'] = likeMap.includes(element.id) ? true : false;
 
           result.push(element);
           return result;
@@ -115,7 +108,7 @@ export class NftService {
     }
 
     //연결된 지갑이 조회중인 아이템이 구매 등록한 이력이 있는지 여부
-    if (option.includes("buyInfo") && params.connectAddr && nfts.length > 0) {
+    if (option.includes('buyInfo') && params.connectAddr && nfts.length > 0) {
       const buys = await Buy.find({
         where: {
           status: this.constant.STATUS.BUY.START,
@@ -138,13 +131,10 @@ export class NftService {
       }, {});
 
       nfts = nfts.reduce(function (result, element) {
-        element["buys"] = [];
+        element['buys'] = [];
 
-        if (
-          element.tokenAddress in buyMap &&
-          element.tokenId in buyMap[element.tokenAddress]
-        ) {
-          element["buys"] = buyMap[element.tokenAddress][element.tokenId];
+        if (element.tokenAddress in buyMap && element.tokenId in buyMap[element.tokenAddress]) {
+          element['buys'] = buyMap[element.tokenAddress][element.tokenId];
         }
         result.push(element);
         return result;
@@ -161,7 +151,7 @@ export class NftService {
     }, []);
 
     const negos = await SellNego.find({
-      select: ["sellId", "declineReason", "declineType"],
+      select: ['sellId', 'declineReason', 'declineType'],
       where: { sellId: In(tradeIds) },
     });
 
@@ -172,7 +162,7 @@ export class NftService {
 
     tradeArr = await tradeArr.reduce((result, element) => {
       if (element.tradeId && element.tradeId in negoInfo) {
-        element["negoInfo"] = negoInfo[element.tradeId];
+        element['negoInfo'] = negoInfo[element.tradeId];
       }
       result.push(element);
       return result;
@@ -186,28 +176,26 @@ export class NftService {
 
     for (let i = 0; i < datas.length; i++) {
       if (datas[i].tokenAddress && datas[i].tokenId)
-        nftKeys.push(
-          "('" + datas[i].tokenAddress + "','" + datas[i].tokenId + "')"
-        );
+        nftKeys.push("('" + datas[i].tokenAddress + "','" + datas[i].tokenId + "')");
     }
 
     if (nftKeys.length < 1) return datas;
-    const nftKeysStr = "(" + nftKeys.join(",") + ")";
+    const nftKeysStr = '(' + nftKeys.join(',') + ')';
 
     var query = getRepository(NftItem)
       .createQueryBuilder()
-      .where("(NftItem.tokenAddress, NftItem.tokenId) In " + nftKeysStr);
-    if (desc) query.leftJoinAndSelect("NftItem.desc", "desc");
+      .where('(NftItem.tokenAddress, NftItem.tokenId) In ' + nftKeysStr);
+    if (desc) query.leftJoinAndSelect('NftItem.desc', 'desc');
     const nftArr = await query.getMany();
 
     const nfts = await nftArr.reduce(function (result, data) {
-      result[data.tokenAddress + "," + data.tokenId] = data;
+      result[data.tokenAddress + ',' + data.tokenId] = data;
       return result;
     }, {});
 
     datas = await datas.reduce(function (result, data) {
-      if (data.tokenAddress + "," + data.tokenId in nfts) {
-        data = nfts[data.tokenAddress + "," + data.tokenId];
+      if (data.tokenAddress + ',' + data.tokenId in nfts) {
+        data = nfts[data.tokenAddress + ',' + data.tokenId];
       } else {
         data = data;
       }
@@ -240,11 +228,11 @@ export class NftService {
     }, {});
 
     sales = await sales.reduce((result, sale) => {
-      if (!("bids" in sale)) sale["bids"] = [];
-      if (!("negos" in sale)) sale["negos"] = [];
+      if (!('bids' in sale)) sale['bids'] = [];
+      if (!('negos' in sale)) sale['negos'] = [];
 
-      if (sale.id && sale.id in bidInfo) sale["bids"] = bidInfo[sale.id];
-      if (sale.id && sale.id in negoInfo) sale["negos"] = negoInfo[sale.id];
+      if (sale.id && sale.id in bidInfo) sale['bids'] = bidInfo[sale.id];
+      if (sale.id && sale.id in negoInfo) sale['negos'] = negoInfo[sale.id];
 
       result.push(sale);
       return result;
@@ -255,42 +243,31 @@ export class NftService {
 
   async getMetadata(tokenAddr, tokenId) {
     const pattern = new RegExp(
-      "^(https?:\\/\\/)?" + // protocol
-        "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
-        "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
-        "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
-        "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
-        "(\\#[-a-z\\d_]*)?$",
-      "i"
+      '^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$',
+      'i',
     ); // fragment locator
     try {
       var tokenURI = await this.nodeService.getTokenURI(tokenAddr, tokenId);
 
-      if (
-        !tokenURI &&
-        (process.env.NODE_ENV == "local" ||
-          process.env.NODE_ENV == "development")
-      ) {
+      if (!tokenURI && (process.env.NODE_ENV == 'local' || process.env.NODE_ENV == 'development')) {
         if (Number(tokenId) % 2 == 0) {
-          tokenURI =
-            "https://nft.service.cometh.io/" +
-            (Math.floor(Math.random() * 300) + 6000000).toString();
+          tokenURI = 'https://nft.service.cometh.io/' + (Math.floor(Math.random() * 300) + 6000000).toString();
         } else {
           tokenURI =
-            "https://joyworld.azurewebsites.net/api/HttpTrigger?id=" +
-            Math.floor(Math.random() * 300).toString();
+            'https://joyworld.azurewebsites.net/api/HttpTrigger?id=' + Math.floor(Math.random() * 300).toString();
         }
       }
 
       if (tokenURI) {
         if (pattern.test(tokenURI)) {
-          var [name, description, image, animationUrl] = await this.parseUrl(
-            tokenURI
-          );
+          var [name, description, image, animationUrl] = await this.parseUrl(tokenURI);
         } else {
-          var [name, description, image, animationUrl] = this.parseStandard(
-            tokenURI
-          );
+          var [name, description, image, animationUrl] = this.parseStandard(tokenURI);
         }
         await NftItem.createQueryBuilder()
           .insert()
@@ -301,8 +278,8 @@ export class NftService {
             status: this.constant.STATUS.NFT.WITHDRAW,
           })
           .orUpdate({
-            conflict_target: ["tokenAddress", "tokenId"],
-            overwrite: ["tokenUri"],
+            conflict_target: ['tokenAddress', 'tokenId'],
+            overwrite: ['tokenUri'],
           })
           .updateEntity(false)
           .execute();
@@ -319,33 +296,33 @@ export class NftService {
             animationUrl: animationUrl,
           })
           .orUpdate({
-            conflict_target: ["tokenAddress", "tokenId"],
-            overwrite: ["name", "description", "image", "animationUrl"],
+            conflict_target: ['tokenAddress', 'tokenId'],
+            overwrite: ['name', 'description', 'image', 'animationUrl'],
           })
           .updateEntity(false)
           .execute();
 
         return [name, description, image, animationUrl];
       } else {
-        return ["", "", ""];
+        return ['', '', ''];
       }
     } catch (e) {
-      this.logger.error("tokenURI error" + e.message);
+      this.logger.error('tokenURI error' + e.message);
     }
 
-    return ["", "", ""];
+    return ['', '', ''];
   }
 
   async parseUrl(tokenURI) {
     const requestOptions = {
-      method: "GET",
+      method: 'GET',
       uri: tokenURI,
       json: true,
       gzip: true,
     };
 
     const data = await rp(requestOptions);
-    var animationUrl = "animation_url" in data ? data.animation_url : "";
+    var animationUrl = 'animation_url' in data ? data.animation_url : '';
     return [data.name, data.description, data.image, animationUrl];
   }
 
@@ -357,7 +334,7 @@ export class NftService {
     name = data.name;
     description = data.description;
     image = data.image;
-    animationUrl = "animation_url" in data ? data.animation_url : "";
+    animationUrl = 'animation_url' in data ? data.animation_url : '';
 
     return [name, description, image, animationUrl];
   }

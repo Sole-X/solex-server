@@ -4,8 +4,8 @@ export default {
     KLAYTN: 2,
   },
   EXPLORER: {
-    ETH: "https://etherscan.io/",
-    KLAYTN: "https://scope.klaytn.com/",
+    ETH: 'https://etherscan.io/',
+    KLAYTN: 'https://scope.klaytn.com/',
   },
   TOKEN_CATE: {
     ETH: 1,

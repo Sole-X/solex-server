@@ -1,9 +1,9 @@
-import { Container } from "typedi";
-import { TokenInfo } from "../entities/TokenInfo";
+import { Container } from 'typedi';
+import { TokenInfo } from '../entities/TokenInfo';
 
-const cron = require("node-cron");
-const rp = require("request-promise");
-const api = "/v2/cryptocurrency/quotes/latest";
+const cron = require('node-cron');
+const rp = require('request-promise');
+const api = '/v2/cryptocurrency/quotes/latest';
 const symbol = {
   ETH: { id: 1027, decimal: 18 },
   USDT: { id: 825, decimal: 6 },
@@ -12,23 +12,23 @@ const symbol = {
 };
 
 export default () => {
-  const logger: any = Container.get("logger");
+  const logger: any = Container.get('logger');
 
   const requestOptions = {
-    method: "GET",
-    uri: "https://pro-api.coinmarketcap.com" + api,
+    method: 'GET',
+    uri: 'https://pro-api.coinmarketcap.com' + api,
     qs: {
-      id: "1027,825,6801,4256",
+      id: '1027,825,6801,4256',
     },
     headers: {
-      "X-CMC_PRO_API_KEY": process.env.CMC_KEY,
+      'X-CMC_PRO_API_KEY': process.env.CMC_KEY,
     },
     json: true,
     gzip: true,
   };
 
   //시간당
-  cron.schedule("0 * * * *", function () {
+  cron.schedule('0 * * * *', function () {
     call();
   });
 
@@ -54,11 +54,11 @@ export default () => {
             }
           });
         } else {
-          logger.error("CMC ERROR" + response.status.error_message);
+          logger.error('CMC ERROR' + response.status.error_message);
         }
       })
       .catch((err) => {
-        logger.error("CMC call error:" + err.message);
+        logger.error('CMC call error:' + err.message);
       });
   }
 };

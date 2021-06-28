@@ -1,19 +1,19 @@
-import { Container, Service, Inject } from "typedi";
-import { BulkData, BulkService } from "../BulkService";
-import { EventService } from "../sync/EventService";
-import { RedisService } from "../RedisService";
-import { NodeService } from "../NodeService";
+import { Container, Service, Inject } from 'typedi';
+import { BulkData, BulkService } from '../BulkService';
+import { EventService } from '../sync/EventService';
+import { RedisService } from '../RedisService';
+import { NodeService } from '../NodeService';
 
-@Service("Sync201215")
+@Service('Sync201215')
 export class Sync201215 {
   private currentBlockNo = 0;
 
   constructor(
-    @Inject("RedisService") private redisService: RedisService,
-    @Inject("NodeService") private nodeService: NodeService,
-    @Inject("BulkService") private bulkService: BulkService,
-    @Inject("EventService") private eventService: EventService,
-    @Inject("logger") private logger
+    @Inject('RedisService') private redisService: RedisService,
+    @Inject('NodeService') private nodeService: NodeService,
+    @Inject('BulkService') private bulkService: BulkService,
+    @Inject('EventService') private eventService: EventService,
+    @Inject('logger') private logger,
   ) {}
 
   public async setRedisCurBlockNo() {
@@ -25,7 +25,7 @@ export class Sync201215 {
         if (blockNo > 0) {
           if (this.currentBlockNo != blockNo) this.blockSync(blockNo);
           this.currentBlockNo = blockNo;
-          this.redisService.set("currentBlockNo", blockNo);
+          this.redisService.set('currentBlockNo', blockNo);
         } else {
           errFlag = true;
           if (!errFlag)
@@ -51,20 +51,18 @@ export class Sync201215 {
     return this.nodeService
       .getBlockWithConsensusInfo(blockNo)
       .then(async (currBlock) => {
-        const blockDate = new Date(
-          this.nodeService.getHexToNumberString(currBlock.timestamp) * 1000
-        );
+        const blockDate = new Date(this.nodeService.getHexToNumberString(currBlock.timestamp) * 1000);
 
         await this.bulkService.addData(blockNo, {
-          tableName: "block",
+          tableName: 'block',
           data: {
             blockNumber: blockNo,
-            version: Container.get("migrationVersion"),
+            version: Container.get('migrationVersion'),
             createdAt: blockDate,
           },
-          queryType: "upsert",
-          conflict_target: ["blockNumber"],
-          overwrite: ["version"],
+          queryType: 'upsert',
+          conflict_target: ['blockNumber'],
+          overwrite: ['version'],
         });
 
         await this.txDataSync(blockNo, currBlock.transactions, blockDate);
@@ -90,7 +88,7 @@ export class Sync201215 {
         blockNo,
         this.nodeService.getHexToNumberString(transaction.transactionIndex),
         transaction.logs,
-        blockDate
+        blockDate,
       );
 
       // Transaction.create({

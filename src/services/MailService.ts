@@ -1,16 +1,16 @@
-import { Service, Inject } from "typedi";
-import { MailTemplate } from "../entities/MailTemplate";
-import { MailLog } from "../entities/MailLog";
-import { Newsletter } from "../entities/Newsletter";
+import { Service, Inject } from 'typedi';
+import { MailTemplate } from '../entities/MailTemplate';
+import { MailLog } from '../entities/MailLog';
+import { Newsletter } from '../entities/Newsletter';
 
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
-@Service("MailService")
+@Service('MailService')
 export class MailService {
-  constructor(@Inject("logger") private logger) {}
+  constructor(@Inject('logger') private logger) {}
 
   async sendReport(tokenAddr, tokenId, reason) {
-    const subject = "Report - " + tokenAddr + " #" + tokenId;
+    const subject = 'Report - ' + tokenAddr + ' #' + tokenId;
 
     return this.sendMail(subject, reason, []);
   }
@@ -18,18 +18,16 @@ export class MailService {
     const subsribers = await Newsletter.find({ status: 1 });
     return this.sendTemplate(
       1,
-      ["TEST"],
-      subsribers.map((x) => x.email)
+      ['TEST'],
+      subsribers.map((x) => x.email),
     );
   }
 
   async sendTemplate(templateId, params, to) {
     var template = await MailTemplate.findOne({ id: templateId });
-    var body = "";
+    var body = '';
     for (var paramIdx in params) {
-      body = template.template
-        .split("{param" + paramIdx + "}")
-        .join(params[paramIdx]);
+      body = template.template.split('{param' + paramIdx + '}').join(params[paramIdx]);
     }
 
     return this.sendMail(template.subject, body, to);
@@ -37,7 +35,7 @@ export class MailService {
 
   async sendMail(subject, body, to = []) {
     const mailOption = {
-      host: "localhost",
+      host: 'localhost',
       port: 25,
       secure: false,
       tls: {
@@ -51,7 +49,7 @@ export class MailService {
       to: to,
       subject: subject,
       text: body,
-      html: "<b>" + body + "</b>",
+      html: '<b>' + body + '</b>',
     });
 
     return info;
