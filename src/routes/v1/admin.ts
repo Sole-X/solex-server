@@ -6,8 +6,6 @@ const route = Router();
 const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 var path = require('path');
-const dotEnv = require('dotenv-flow');
-dotEnv.config();
 
 passport.serializeUser(function (user, done) {
   done(null, user);
