@@ -253,7 +253,7 @@ export class CommonService {
           order = { usdPrice: sort };
           break;
         case "EXPIRE":
-          order = { status: "ASC", endTime: sort };
+          order = { status: "DESC", endTime: sort };
           break;
         case "PARTICIPANT":
           order = { participant: sort };
@@ -344,13 +344,13 @@ export class CommonService {
     if ('publisher' in params && params.publisher) {
       const nftItems = await NftItem.find({
         select: ['tokenAddress', 'tokenId'],
-        where: { publisher: Like("%" + params.publisher + "%")  }
+        where: { publisher: Like("%" + params.publisher + "%") }
       })
       var pubTokenIds = nftItems.map(item => item.tokenId)
 
       tokenAddrArr = tokenAddrArr.concat(nftItems.map(item => item.tokenAddress))
       tokenIdArr = tokenIdArr.concat(nftItems.map(item => item.tokenId))
-      if(pubTokenIds.length <1) tokenAddrArr = ["nothing"]
+      if (pubTokenIds.length < 1) tokenAddrArr = ["nothing"]
 
     }
 
