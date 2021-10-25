@@ -13,21 +13,20 @@ import common from './v1/common';
 import explorer from './v1/explorer';
 
 // guaranteed to get dependencies
-export default ( app : express.Application ) => {
-   
-  sale(app);  
-  sell(app);  
-  nft(app);  
-  sign(app);  
+export default (app: express.Application) => {
+  sale(app);
+  sell(app);
+  nft(app);
+  sign(app);
   auth(app);
   account(app);
   buy(app);
   common(app);
   explorer(app);
 
-  if(process.env.ADMIN_ON){
-    swagger(app);  
-    admin(app)    
+  if (process.env.ADMIN_ON) {
+    swagger(app);
+    admin(app);
   }
-	return app
-}
+  return app;
+};

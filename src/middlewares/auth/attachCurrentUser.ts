@@ -10,10 +10,11 @@ import { Account } from '../../entities/Account';
  * @param {*} next  Express next Function
  */
 const attachCurrentUser = async (req, res, next) => {
- 
-  const Logger : Logger = Container.get('logger');
+  const Logger: Logger = Container.get('logger');
   try {
-    const userRecord = await Account.findOne({accountAddress:req.token._addr})
+    const userRecord = await Account.findOne({
+      accountAddress: req.token._addr,
+    });
     if (!userRecord) {
       //return res.sendStatus(401);
     }
@@ -27,7 +28,5 @@ const attachCurrentUser = async (req, res, next) => {
     return next(e);
   }
 };
-
-
 
 export default attachCurrentUser;

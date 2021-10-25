@@ -5,19 +5,20 @@ import { SolexTx } from '../entities/SolexTx';
 const Queue = require('bull');
 const ethjs = require('ethereumjs-util');
 const abiCoder = require('web3-eth-abi');
-const CaverExtKAS = require("caver-js-ext-kas");
+const CaverExtKAS = require('caver-js-ext-kas');
 
-@Service("KasService")
+@Service('KasService')
 export class KasService {
-
   constructor(
     @Inject('AbiService') private abiService: AbiService,
     @Inject('logger') private logger,
     @Inject('NodeService') private nodeService,
     @Inject('CommonService') private commonService,
-    @Inject('contractAddress') private contractAddress
-  ) {
-  }
+    @Inject('contractAddress') private contractAddress,
+  ) {}
+
+  async makeKasAccount(chainId) {
+    const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2);
 
   async makeKasAccount(chainId) {
     const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2)
@@ -26,7 +27,7 @@ export class KasService {
   }
 
   async getKasAccounts(chainId) {
-    const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2)
+    const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2);
 
     return await caver.kas.wallet.getAccountList();
   }
@@ -76,7 +77,7 @@ export class KasService {
       var myRateLimitedQueue = new Queue('kasQueue', {
         limiter: {
           max: 50,
-          duration: 1000
+          duration: 1000,
         },
         redis: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST }
       });
@@ -88,5 +89,4 @@ export class KasService {
       this.logger.error("kas error", e.message);
     }
   }
-
 }

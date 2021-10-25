@@ -2,12 +2,11 @@ import { humanReadableStringToHexAddress, isAddress } from 'caver-js/packages/ca
 const { validationResult } = require('express-validator');
 
 exports.validate = (req, res, next) => {
-  
-  const errors = validationResult(req)
-  
+  const errors = validationResult(req);
+
   if (errors.isEmpty()) {
-    return next()
+    return next();
   }
 
-  return res.status(400).json({ msg:errors.errors[0].msg })
-}
+  return res.status(400).json({ msg: errors.errors[0].msg });
+};

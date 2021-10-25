@@ -9,7 +9,7 @@ import jwt from 'express-jwt';
  * GET https://my-bulletproof-api.com/stats?apiKey=${JWT}
  * Luckily this API follow _common sense_ ergo a _good design_ and don't allow that ugly stuff
  */
-const getTokenFromHeader = req => {
+const getTokenFromHeader = (req) => {
   /**
    * @TODO Edge and Internet Explorer do some weird things with the headers
    * So I believe that this should handle more 'edge' cases ;)
@@ -23,13 +23,13 @@ const getTokenFromHeader = req => {
   return null;
 };
 
-const isAuth = ()=>{
+const isAuth = () => {
   return jwt({
     secret: process.env.JWT_SECRET, // The _secret_ to sign the JWTs
     algorithms: [process.env.JWT_ALGO], // JWT Algorithm
     userProperty: 'token', // Use req.token to store the JWT
     getToken: getTokenFromHeader, // How to extract the JWT from the request
-  })
+  });
 };
 
 export default isAuth;

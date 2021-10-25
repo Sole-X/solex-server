@@ -1,13 +1,13 @@
-import { Column, Entity } from "typeorm";
-import { ParentEntity } from "./ParentEntity";
+import { Column, Entity } from 'typeorm';
+import { ParentEntity } from './ParentEntity';
 
-@Entity("variable")
-export class Variable extends ParentEntity{
-  @Column("varchar", { primary: true, name: "key", length: 45 })
+@Entity('variable')
+export class Variable extends ParentEntity {
+  @Column('varchar', { primary: true, name: 'key', length: 45 })
   key: string;
 
-  @Column("decimal", {
-    name: "value",
+  @Column('decimal', {
+    name: 'value',
     unsigned: true,
     precision: 65,
     scale: 0,

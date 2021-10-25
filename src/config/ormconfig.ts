@@ -1,19 +1,17 @@
 import { CustomLogger } from '../loaders/typeormLogger';
-import {ConnectionOptions, DatabaseType} from 'typeorm';    
+import { ConnectionOptions, DatabaseType } from 'typeorm';
 const postgresDatabase: DatabaseType = 'mysql';
-const dotEnv = require('dotenv-flow')
-const logging:("query" | "error" | "schema" | "warn" | "info" | "log" | "migration")[] = ["error","warn"]
+const logging: ('query' | 'error' | 'schema' | 'warn' | 'info' | 'log' | 'migration')[] = ['error', 'warn'];
 
-var rootDir = process.env.PWD
-dotEnv.config()
+var rootDir = process.env.PWD;
 
 if (process.argv[0].includes('ts-node')) {
-    rootDir += '/src'
+  rootDir += '/src';
 } else {
-    rootDir += '/dist'
+  rootDir += '/dist';
 }
 
-export default  {
+export default {
   name: 'default',
   type: postgresDatabase,
   charset: 'utf8mb4_unicode_ci',
@@ -23,7 +21,7 @@ export default  {
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DB,
   logging: process.env.NODE_ENV === 'local' ? true : logging,
-  logger:new CustomLogger(),
+  logger: new CustomLogger(),
   synchronize: false,
   dropSchema: false,
   maxQueryExecutionTime: 5000,
@@ -32,6 +30,6 @@ export default  {
   subscribers: [`${rootDir}/entities/hooks/*{.ts,.js}`],
   cli: {
     entitiesDir: `${rootDir}/entities`,
-    migrationsDir: `src/migrations`
-  }
-}
+    migrationsDir: `src/migrations`,
+  },
+};

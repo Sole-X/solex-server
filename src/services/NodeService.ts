@@ -7,7 +7,7 @@ import { Stake } from '../entities/Stake';
 const ethjs = require('ethereumjs-util');
 const EthContract = require('web3-eth-contract');
 
-@Service("NodeService")
+@Service('NodeService')
 export class NodeService {
 
   kip7;
@@ -19,7 +19,7 @@ export class NodeService {
   reserveFeeNumber = 5;
   klayminterContract;
 
-
+  
   constructor(
     @Inject('logger') private logger,
     @Inject('caverClient') private caverClient,
@@ -27,7 +27,7 @@ export class NodeService {
     @Inject('contractAddress') private contractAddress,
     @Inject('AbiService') private abiService,
     @Inject('CommonService') private commonService,
-    @Inject('RedisService') private redisService
+    @Inject('RedisService') private redisService,
   ) {
     const { KIP7, KIP17, Contract } = this.caverClient.klay;
     const EthContract = this.ethClient.eth.Contract;
@@ -46,19 +46,19 @@ export class NodeService {
   async getTokenURI(address, tokenId) {
     this.kip17.options.address = address;
     try {
-      if (this.kip17.supportsInterface('0x80ac58cd')) return await this.kip17.tokenURI(tokenId)
+      if (this.kip17.supportsInterface('0x80ac58cd')) return await this.kip17.tokenURI(tokenId);
     } catch (e) {
-      this.logger.error('Get TokenURI error' + e.message)
-      return "";
+      this.logger.error('Get TokenURI error' + e.message);
+      return '';
     }
   }
 
   async getKlayBalance(accountAddr) {
-    return await this.caverClient.klay.getBalance(accountAddr)
+    return await this.caverClient.klay.getBalance(accountAddr);
   }
 
   async getTokenInfo(address, isNft = true) {
-    var kip = (isNft) ? this.kip17 : this.kip7;
+    var kip = isNft ? this.kip17 : this.kip7;
     kip.options.address = address;
     try {
       const name = await kip.name();
@@ -85,7 +85,7 @@ export class NodeService {
   }
 
   getBlockWithConsensusInfo(blockNumber, type = 'caver') {
-    if (type == 'eth') return this.ethClient.eth.getBlock(blockNumber, true)
+    if (type == 'eth') return this.ethClient.eth.getBlock(blockNumber, true);
     return this.caverClient.klay.getBlockWithConsensusInfo(blockNumber, true);
   }
 
@@ -134,13 +134,13 @@ export class NodeService {
   }
 
   async getFee(amount) {
-    return amount * this.reserveFeeNumber / this.reserveFeeDenom;
+    return (amount * this.reserveFeeNumber) / this.reserveFeeDenom;
   }
 
   //차감된 금액에서 원래 금액 알아오기
   async getPaidAmount(amount) {
     amount = this.commonService.mulBN(amount, this.reserveFeeDenom);
-    amount = this.commonService.divBN(amount, (this.reserveFeeDenom - this.reserveFeeNumber));
+    amount = this.commonService.divBN(amount, this.reserveFeeDenom - this.reserveFeeNumber);
     return amount.toString();
   }
 
@@ -180,7 +180,6 @@ export class NodeService {
         } else {
           result[tokenAddr.toLowerCase()] = 0;
         }
-
       }
     }
 
@@ -198,7 +197,7 @@ export class NodeService {
 
       if (totalSupply > 0) {
         this.redisService.set('trixTotalSuply', totalSupply);
-        this.redisService.expire("trixTotalSuply", 60);
+        this.redisService.expire('trixTotalSuply', 60);
       } else {
         return '9999982296000000000000000000';
       }
@@ -206,7 +205,6 @@ export class NodeService {
   }
 
   async checkSignAddress(address, hashType, msg, signHash) {
-
     const msgBuffer = ethjs.toBuffer(msg);
 
     var msgHash;

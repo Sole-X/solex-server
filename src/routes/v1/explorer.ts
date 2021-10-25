@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 
-const explorerCtrl = require("../../controllers/ExplorerController");
+const explorerCtrl = require('../../controllers/ExplorerController');
 const route = Router();
 
 export default (app: Router) => {
@@ -11,5 +11,4 @@ export default (app: Router) => {
 
   //순위
   route.get('/rank', explorerCtrl.getRanking);
-
 };

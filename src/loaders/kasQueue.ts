@@ -1,21 +1,19 @@
 const Queue = require('bull');
 import { Container } from 'typedi';
 
-
 //KAS
 
 export default () => {
-  const logger: any = Container.get("logger");
-  const caver: any = Container.get("kasCaver");
-
+  const logger: any = Container.get('logger');
+  const caver: any = Container.get('kasCaver');
 
   var myRateLimitedQueue = new Queue('kasQueue', {
     limiter: {
       max: 50,
-      duration: 1000
+      duration: 1000,
     },
     removeOnComplete: true,
-    redis: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST }
+    redis: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST },
   });
 
   myRateLimitedQueue.process(async function (job, done) {
@@ -33,18 +31,15 @@ export default () => {
 
       done(null, result.transactionHash);
     } catch (e) {
-
       await socket.pendingTx(hash, '', 'fail');
-      logger.error('err' + e.message)
+      logger.error('err' + e.message);
       done(new Error(e.message));
     }
-
-  })
+  });
 
   myRateLimitedQueue.on('completed', async (job, result) => {
     job.remove();
-  })
+  });
 
   return myRateLimitedQueue;
-
 };
