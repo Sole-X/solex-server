@@ -24,6 +24,8 @@ export default () => {
     const socket: any = Container.get('SocketService');
 
     try {
+      caver.initWalletAPI(process.env.KAS_NETWORK, process.env.KAS_KEY1, process.env.KAS_KEY2)
+
       const result = await caver.kas.wallet.requestSmartContractExecution(tx);
       await socket.pendingTx(hash, result.transactionHash, 'success');
 

@@ -20,6 +20,9 @@ export class KasService {
   async makeKasAccount(chainId) {
     const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2);
 
+  async makeKasAccount(chainId) {
+    const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2)
+
     return await caver.kas.wallet.createAccount();
   }
 
@@ -29,35 +32,44 @@ export class KasService {
     return await caver.kas.wallet.getAccountList();
   }
 
-  async executeTx(hash, toAddress, functionEncoded, address, v, r, s, hashType, bridge = false) {
-    const sendKlay = bridge ? this.commonService.toMinUnit(2, 18) : 0;
-    const executeAbi = this.abiService.getFunctionAbi('execute-abi', 'executeFunction');
+  async executeTx(hash, toAddress, functionEncoded, address, v, r, s, hashType, bridge = 'false') {
 
-    var encoded = abiCoder.encodeFunctionCall(executeAbi, [
-      toAddress,
-      sendKlay,
-      functionEncoded,
-      address,
-      v,
-      ethjs.bufferToHex(r),
-      ethjs.bufferToHex(s),
-      hashType,
-    ]);
-
-    const tx = {
-      from: this.contractAddress['KasAccount'],
-      to: this.contractAddress['ExecutorContract'],
-      value: sendKlay,
-      input: encoded,
-      gas: 500000,
-      submit: true,
-    };
+    var chainFee = 0;
 
     try {
+      if (bridge == 'token') {
+        chainFee = await this.nodeService.getBridgeFee(false);
+      } else if (bridge == 'nft') {
+        chainFee = await this.nodeService.getBridgeFee(true);
+      }
+      const sendKlay = (bridge != 'false') ? chainFee : 0;
+      const executeAbi = this.abiService.getFunctionAbi('execute-abi', 'executeFunction');
+
+      var encoded = abiCoder.encodeFunctionCall(executeAbi, [
+        toAddress,
+        sendKlay,
+        functionEncoded,
+        address,
+        v,
+        ethjs.bufferToHex(r),
+        ethjs.bufferToHex(s),
+        hashType
+      ]);
+
+      const tx = {
+        from: this.contractAddress['KasAccount'],
+        to: this.contractAddress['ExecutorContract'],
+        value: sendKlay,
+        input: encoded,
+        gas: 500000,
+        submit: true
+      }
+
+
       const hashChk = await SolexTx.findOne({ hashId: hash });
 
       if (hashChk) {
-        throw Error('used hash');
+        throw Error("used hash");
       } else {
         await SolexTx.insert({ hashId: hash });
       }
@@ -67,12 +79,14 @@ export class KasService {
           max: 50,
           duration: 1000,
         },
-        redis: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST },
+        redis: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST }
       });
 
       await myRateLimitedQueue.add({ hash, tx, bridge });
+
     } catch (e) {
-      this.logger.error('kas error', e.message);
+
+      this.logger.error("kas error", e.message);
     }
   }
 }

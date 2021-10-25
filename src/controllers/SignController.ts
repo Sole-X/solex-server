@@ -14,17 +14,23 @@ exports.sign = async function (req, res, next) {
     var signHash = req.body.signHash; //message에 서명한뒤 나온 hash
     var hashType = req.body.hashType;
     var address = req.body.address;
-    var bridge = false;
+    var bridge = 'false';
 
-    const kasService: KasService = Container.get('KasService');
+    const kasService: KasService = Container.get("KasService")
 
     const [result, signAddress, v, r, s] = await nodeService.checkSignAddress(address, hashType, msg, signHash);
 
-    //bridge를 통한 출금일 경우 cate가 token 혹은 nft로 바뀌면
-    if (cate == 'bridge') {
+    //bridge를 통한 출금일 경우 cate가 token 혹은 nft로 바뀌면 
+    if (cate == 'tokenBridge') {
       cate = 'token';
-      bridge = true;
+      bridge = 'token';
     }
+
+    if (cate == 'nftBridge') {
+      cate = 'nft';
+      bridge = 'nft';
+    }
+
     const toAddress = getContractByCate(cate);
 
     kasService.executeTx(hash, toAddress, msg, signAddress, v, r, s, hashType, bridge);

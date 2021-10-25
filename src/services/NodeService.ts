@@ -9,6 +9,7 @@ const EthContract = require('web3-eth-contract');
 
 @Service('NodeService')
 export class NodeService {
+
   kip7;
   kip17;
   erc20;
@@ -16,7 +17,9 @@ export class NodeService {
   reserveContract;
   reserveFeeDenom = 100;
   reserveFeeNumber = 5;
+  klayminterContract;
 
+  
   constructor(
     @Inject('logger') private logger,
     @Inject('caverClient') private caverClient,
@@ -35,6 +38,8 @@ export class NodeService {
     this.stakeContract.options.address = this.contractAddress['StakeContract'];
     this.reserveContract = new Contract(this.abiService.getAbiMap('reserve-abi'));
     this.reserveContract.options.address = this.contractAddress['ReserveContract'];
+    this.klayminterContract = new Contract(this.abiService.getAbiMap('klayminter-abi'));
+    this.klayminterContract.options.address = this.contractAddress['KlayMintContract'];
     this.erc20 = new EthContract(this.abiService.getAbiMap('kip7-abi'));
   }
 
@@ -113,22 +118,13 @@ export class NodeService {
   }
 
   async getFeeInfo(blockNumber = null) {
+
     this.reserveContract.options.address = this.contractAddress['ReserveContract'];
 
-    var feeDenom = await this.reserveContract.methods
-      .feeDenom()
-      .call(null, blockNumber)
-      .catch(() => {
-        return 100;
-      });
-    var feeNumer = await this.reserveContract.methods
-      .feeNumer()
-      .call(null, blockNumber)
-      .catch(() => {
-        return 5;
-      });
+    var feeDenom = await this.reserveContract.methods.feeDenom().call(null, blockNumber).catch(() => { return 100 });
+    var feeNumer = await this.reserveContract.methods.feeNumer().call(null, blockNumber).catch(() => { return 5 });
 
-    return { denom: feeDenom, numer: feeNumer };
+    return { denom: feeDenom, numer: feeNumer }
   }
 
   async setFeeInfo(blockNo) {
@@ -149,14 +145,15 @@ export class NodeService {
   }
 
   async getRewardInfo(to) {
+
     var result = {};
     var tokenInfos = await TokenInfo.find({ where: { reward: 1 } });
     var IndexPrecision = 1000000000000000000;
-    var tsVal = await Variable.findOne({ where: { key: 'totalStaking' } });
+    var tsVal = await Variable.findOne({ where: { key: "totalStaking" } });
     var totalStaking = Number(tsVal.value);
 
     const accountStake = await Stake.findOne(to);
-    const stakingBalance = accountStake ? Number(accountStake.amount) : 0;
+    const stakingBalance = (accountStake) ? Number(accountStake.amount) : 0;
 
     if (!totalStaking) totalStaking = 0;
 
@@ -167,17 +164,15 @@ export class NodeService {
         var newReward = Number(tokenInfos[i].feeReceiver);
 
         if (newReward > 0 && totalStaking > 0) {
-          var newIndex = (newReward * IndexPrecision) / totalStaking;
+          var newIndex = newReward * IndexPrecision / totalStaking;
           reward += newIndex;
         }
 
-        const stakeReward = await StakeReward.findOne({
-          where: { accountAddress: to, currency: tokenAddr },
-        });
-        var userInfo = stakeReward ? Number(stakeReward.userIndex) : 0;
+        const stakeReward = await StakeReward.findOne({ where: { accountAddress: to, currency: tokenAddr } });
+        var userInfo = (stakeReward) ? Number(stakeReward.userIndex) : 0;
 
         if (reward > userInfo) {
-          var amount = this.commonService.toMaxUnit((stakingBalance * (reward - userInfo)) / IndexPrecision, 18);
+          var amount = this.commonService.toMaxUnit(stakingBalance * ((reward) - (userInfo)) / IndexPrecision, 18);
           const dot = amount.indexOf('.');
           amount = amount.toString().substring(0, dot + 4);
 
@@ -226,7 +221,12 @@ export class NodeService {
 
     const signatureParams = ethjs.fromRpcSig(signatureBuffer);
 
-    const publicKey = ethjs.ecrecover(msgHash, signatureParams.v, signatureParams.r, signatureParams.s);
+    const publicKey = ethjs.ecrecover(
+      msgHash,
+      signatureParams.v,
+      signatureParams.r,
+      signatureParams.s
+    );
 
     const addressBuffer = ethjs.publicToAddress(publicKey);
     const signAddress = ethjs.bufferToHex(addressBuffer);
@@ -234,5 +234,18 @@ export class NodeService {
     //if(address != signAddress) return [false, null, null, null, null];
 
     return [true, signAddress, signatureParams.v, signatureParams.r, signatureParams.s];
+
+  }
+
+  async getBridgeFee(nft = false) {
+    const chainId = await this.klayminterContract.methods.getChainId('ETH').call().catch(console.log);
+    var chainFee;
+    if (nft) {
+      chainFee = await this.klayminterContract.methods.chainFeeWithData(chainId).call().catch(console.log);
+    } else {
+      chainFee = await this.klayminterContract.methods.chainFee(chainId).call().catch(console.log);
+    }
+
+    return chainFee;
   }
 }
