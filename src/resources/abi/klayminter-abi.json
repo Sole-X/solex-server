@@ -1,8 +1,46 @@
 [
 	{
 		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "chainAddressLength",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "bridgingFeeWithData",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "chainFeeWithData",
 		"outputs": [
 			{
 				"name": "",
@@ -24,7 +62,7 @@
 			}
 		],
 		"payable": false,
-		"stateMutability": "view",
+		"stateMutability": "pure",
 		"type": "function"
 	},
 	{
@@ -72,6 +110,50 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "tokenLen",
+				"type": "uint256"
+			}
+		],
+		"name": "setTokenLength",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "isFungible",
+				"type": "bool"
+			},
+			{
+				"name": "token",
+				"type": "bytes"
+			},
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "symbol",
+				"type": "string"
+			},
+			{
+				"name": "decimals",
+				"type": "uint8"
+			}
+		],
+		"name": "addTokenWithDeploy",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "tokenDeployer",
@@ -97,6 +179,24 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"name": "v",
+				"type": "bool"
+			}
+		],
+		"name": "setSilentToken",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -149,7 +249,7 @@
 			},
 			{
 				"name": "toAddr",
-				"type": "bytes"
+				"type": "address"
 			},
 			{
 				"name": "token",
@@ -180,7 +280,7 @@
 				"type": "bytes32[]"
 			}
 		],
-		"name": "swap",
+		"name": "swapNFT",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -216,6 +316,39 @@
 	},
 	{
 		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "silentTokenList",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "policyAdmin",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "governance",
 		"outputs": [
@@ -236,6 +369,20 @@
 			{
 				"name": "",
 				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "gasLimitForBridgeReceiver",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -298,6 +445,24 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_token",
+				"type": "address"
+			},
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "setMinRequestSwapAmount",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "nftAddress",
 				"type": "address"
 			},
@@ -353,6 +518,60 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "hubContract",
+				"type": "address"
+			},
+			{
+				"name": "fromChain",
+				"type": "string"
+			},
+			{
+				"name": "fromAddr",
+				"type": "bytes"
+			},
+			{
+				"name": "toAddr",
+				"type": "address"
+			},
+			{
+				"name": "token",
+				"type": "bytes"
+			},
+			{
+				"name": "bytes32s",
+				"type": "bytes32[]"
+			},
+			{
+				"name": "uints",
+				"type": "uint256[]"
+			},
+			{
+				"name": "data",
+				"type": "bytes"
+			},
+			{
+				"name": "v",
+				"type": "uint8[]"
+			},
+			{
+				"name": "r",
+				"type": "bytes32[]"
+			},
+			{
+				"name": "s",
+				"type": "bytes32[]"
+			}
+		],
+		"name": "swap",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -369,6 +588,32 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_chain",
+				"type": "string"
+			},
+			{
+				"name": "valid",
+				"type": "bool"
+			},
+			{
+				"name": "fromAddrLen",
+				"type": "uint256"
+			},
+			{
+				"name": "uintsLen",
+				"type": "uint256"
+			}
+		],
+		"name": "setValidChain",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -394,15 +639,11 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_chain",
-				"type": "string"
-			},
-			{
-				"name": "valid",
-				"type": "bool"
+				"name": "_policyAdmin",
+				"type": "address"
 			}
 		],
-		"name": "setValidChain",
+		"name": "setPolicyAdmin",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -451,6 +692,25 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "chainFee",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
@@ -479,6 +739,25 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "minRequestAmount",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
@@ -496,51 +775,11 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "hubContract",
-				"type": "address"
-			},
-			{
-				"name": "fromChain",
-				"type": "string"
-			},
-			{
-				"name": "fromAddr",
-				"type": "bytes"
-			},
-			{
-				"name": "toAddr",
-				"type": "bytes"
-			},
-			{
-				"name": "token",
-				"type": "bytes"
-			},
-			{
-				"name": "bytes32s",
-				"type": "bytes32[]"
-			},
-			{
-				"name": "uints",
-				"type": "uint256[]"
-			},
-			{
-				"name": "data",
-				"type": "bytes"
-			},
-			{
-				"name": "v",
-				"type": "uint8[]"
-			},
-			{
-				"name": "r",
-				"type": "bytes32[]"
-			},
-			{
-				"name": "s",
-				"type": "bytes32[]"
+				"name": "_gasLimitForBridgeReceiver",
+				"type": "uint256"
 			}
 		],
-		"name": "swapNFT",
+		"name": "setGasLimitForBridgeReceiver",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -660,6 +899,61 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "chainSymbol",
+				"type": "string"
+			},
+			{
+				"name": "_fee",
+				"type": "uint256"
+			},
+			{
+				"name": "_feeWithData",
+				"type": "uint256"
+			}
+		],
+		"name": "setChainFee",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "chainTokenLength",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "chainUintsLength",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "tokenAddress",
 				"type": "address"
 			},
@@ -680,24 +974,6 @@
 		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_bridgingFee",
-				"type": "uint256"
-			},
-			{
-				"name": "_bridgingFeeWithData",
-				"type": "uint256"
-			}
-		],
-		"name": "setBridgingFee",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -897,6 +1173,33 @@
 			}
 		],
 		"name": "SwapRequestNFT",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "success",
+				"type": "bool"
+			},
+			{
+				"indexed": false,
+				"name": "fromAddr",
+				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"name": "tokenAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "BridgeReceiverResult",
 		"type": "event"
 	}
 ]
