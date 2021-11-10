@@ -18,9 +18,6 @@ export class KasService {
   ) {}
 
   async makeKasAccount(chainId) {
-    const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2);
-
-  async makeKasAccount(chainId) {
     const caver = new CaverExtKAS(chainId, process.env.KAS_KEY1, process.env.KAS_KEY2)
 
     return await caver.kas.wallet.createAccount();
