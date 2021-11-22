@@ -34,10 +34,8 @@ export class KasService {
     var chainFee = 0;
 
     try {
-      if (bridge == 'token') {
-        chainFee = await this.nodeService.getBridgeFee(false);
-      } else if (bridge == 'nft') {
-        chainFee = await this.nodeService.getBridgeFee(true);
+      if (bridge == 'token' || bridge == 'nft') {
+        chainFee = await this.nodeService.getBridgeFee();
       }
       const sendKlay = (bridge != 'false') ? chainFee : 0;
       const executeAbi = this.abiService.getFunctionAbi('execute-abi', 'executeFunction');

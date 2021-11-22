@@ -237,14 +237,9 @@ export class NodeService {
 
   }
 
-  async getBridgeFee(nft = false) {
+  async getBridgeFee() {
     const chainId = await this.klayminterContract.methods.getChainId('ETH').call().catch(console.log);
-    var chainFee;
-    if (nft) {
-      chainFee = await this.klayminterContract.methods.chainFeeWithData(chainId).call().catch(console.log);
-    } else {
-      chainFee = await this.klayminterContract.methods.chainFee(chainId).call().catch(console.log);
-    }
+    var chainFee = await this.klayminterContract.methods.chainFeeWithData(chainId).call().catch(console.log);
 
     return chainFee;
   }
