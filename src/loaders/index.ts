@@ -38,6 +38,7 @@ export default async ({ expressApp }) => {
       Logger.error('Server listening err',err);
       process.exit(1);
     });
+    expressApp.setTimeout(1000 * 60);
   }
 
   
