@@ -247,13 +247,13 @@ exports.getMetadata = async function (req:Request, res:Response, next:NextFuncti
   var tokenIds:any = req.query.tokenIds;
   tokenIds = tokenIds.split(",");
   var result = {};
-
+  var reload = false;
   try {
     var dbNftsObjs = await getRepository(NftItem).find({
       where:{tokenAddress:tokenAddr,tokenId:In(tokenIds)}
       ,relations:['desc']});
 
-    const nftInfos = dbNftsObjs.reduce(function(result:any, element) {
+    var nftInfos = dbNftsObjs.reduce(function(result:any, element) {
       if(result[element.tokenAddress]){
         if(result[element.tokenAddress][element.tokenId]){
           result[element.tokenAddress][element.tokenId] = element;
@@ -269,18 +269,34 @@ exports.getMetadata = async function (req:Request, res:Response, next:NextFuncti
     }, {}); 
 
     for(let i=0; i<tokenIds.length;i++){
-
-      if(!(nftInfos[tokenAddr][tokenIds[i]]['desc'])){
-        var [name,description,image,animationUrl] = await nftService.getMetadata(tokenAddr,tokenIds[i]);
-        nftInfos[tokenAddr][tokenIds[i]]['desc'] = {
-          name:name,
-          description:description,
-          image:image,
-          animationUrl:animationUrl
-        }
+      if(!(tokenAddr in nftInfos) || !(tokenIds[i] in nftInfos[tokenAddr])){
+        await nftService.getMetadata(tokenAddr,tokenIds[i]);
+        reload = true;
       }      
     }
     
+    if(reload){
+      dbNftsObjs = await getRepository(NftItem).find({
+        where:{tokenAddress:tokenAddr,tokenId:In(tokenIds)}
+        ,relations:['desc']});
+  
+      nftInfos = dbNftsObjs.reduce(function(result:any, element) {
+        if(result[element.tokenAddress]){
+          if(result[element.tokenAddress][element.tokenId]){
+            result[element.tokenAddress][element.tokenId] = element;
+          }else{
+            result[element.tokenAddress][element.tokenId] = element;
+          } 
+        }else{
+          result[element.tokenAddress] ={};
+          result[element.tokenAddress][element.tokenId] = element;
+        }
+  
+        return result;
+      }, {}); 
+    }
+
+
     return res.status(200).json({ nfts: nftInfos });
   } catch (e) {
     return next(e);
